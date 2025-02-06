@@ -1,0 +1,56 @@
+# Eclipse-specific files
+.classpath
+.project
+.settings/
+
+# IntelliJ IDEA project files (if any team members use it)
+.idea/
+*.iml
+
+# Build directories
+bin/
+target/
+out/
+
+# Compiled class files
+*.class
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Dependency directories
+lib/
+node_modules/
+
+# Maven-specific files
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+target/
+dependency-reduced-pom.xml
+
+# Gradle-specific files
+.gradle/
+build/
+*.jar
+*.war
+*.ear
+
+# Java compiled binaries
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE-specific files
+.vscode/
+.DS_Store
+
+# Logs and caches
+hs_err_pid*
+Thumbs.db
+
