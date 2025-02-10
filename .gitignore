@@ -1,56 +1,56 @@
-# Eclipse-specific files
-.classpath
-.project
-.settings/
-
-# IntelliJ IDEA project files (if any team members use it)
-.idea/
-*.iml
-
-# Build directories
-bin/
-target/
-out/
-
 # Compiled class files
 *.class
 
-# Logs and temporary files
+# IDE and editor-specific files
+.idea/
+.vscode/
+*.iml
 *.log
-*.tmp
-*.bak
+
+# Build and dependency directories
+/bin/
+/build/
+/target/
+out/
+.gradle/
+.mvn/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
 *.swp
 
-# Dependency directories
-lib/
-node_modules/
-
-# Maven-specific files
-.mvn/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-target/
-dependency-reduced-pom.xml
-
-# Gradle-specific files
-.gradle/
-build/
+# JAR and library files
 *.jar
 *.war
 *.ear
 
-# Java compiled binaries
-*.class
-*.jar
-*.war
-*.ear
-
-# IDE-specific files
-.vscode/
-.DS_Store
-
-# Logs and caches
+# Logs and temp files
+logs/
+*.log
 hs_err_pid*
-Thumbs.db
+*.tmp
+
+# Coverage and testing files
+coverage/
+*.test
+/test-results/
+jacoco/
+
+# Dependency caches
+.m2/
+.gradle/
+
+# Ignore user-generated files
+/.settings/
+/.classpath
+/.project
+
+# Ignore runnable scripts or generated executables
+run.sh
+run.bat
+*.exe
+
+# Ignore demo video files (optional)
+demo/*.mp4
 
