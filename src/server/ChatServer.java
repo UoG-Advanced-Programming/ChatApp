@@ -1,3 +1,5 @@
+package server;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -7,29 +9,21 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-/**
- * A multithreaded chat room server. When a client connects the server requests a screen
- * name by sending the client the text "SUBMITNAME", and keeps requesting a name until
- * a unique one is received. After a client submits a unique name, the server acknowledges
- * with "NAMEACCEPTED". Then all messages from that client will be broadcast to all other
- * clients that have submitted a unique screen name. The broadcast messages are prefixed
- * with "MESSAGE".
- *
- * This is just a teaching example so it can be enhanced in many ways, e.g., better
- * logging. Another is to accept a lot of fun commands, like Slack.
- */
 public class ChatServer {
 
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
-     // The set of all the print writers for all the clients, used for broadcast.
+    // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
+
+    // Track the coordinator
+    private static String coordinator = null;
 
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");
         ExecutorService pool = Executors.newFixedThreadPool(500);
-        try (ServerSocket listener = new ServerSocket(59001)) {
+        try (ServerSocket listener = new ServerSocket(7005)) {
             while (true) {
                 pool.execute(new Handler(listener.accept()));
             }
@@ -46,9 +40,7 @@ public class ChatServer {
         private PrintWriter out;
 
         /**
-         * Constructs a handler thread, squirreling away the socket. All the interesting
-         * work is done in the run method. Remember the constructor is called from the
-         * server's main method, so this has to be as short as possible.
+         * Constructs a handler thread, squirreling away the socket.
          */
         public Handler(Socket socket) {
             this.socket = socket;
@@ -75,28 +67,61 @@ public class ChatServer {
                     synchronized (names) {
                         if (!name.isEmpty() && !names.contains(name)) {
                             names.add(name);
+                            // Assign the first client as the coordinator
+                            if (coordinator == null) {
+                                coordinator = name;
+                                System.out.println("Coordinator assigned: " + coordinator);
+                            }
                             break;
                         }
                     }
                 }
 
-                // Now that a successful name has been chosen, add the socket's print writer
-                // to the set of all writers so this client can receive broadcast messages.
-                // But BEFORE THAT, let everyone else know that the new person has joined!
-                out.println("NAMEACCEPTED " + name);
+                // Notify the new client of the coordinator
+                out.println("COORDINATOR " + coordinator);
+
+                // Notify all clients of the new client joining
                 for (PrintWriter writer : writers) {
                     writer.println("MESSAGE " + name + " has joined");
                 }
+
+                // Add the new client's writer to the set
                 writers.add(out);
+
+                // Notify the new client that their name has been accepted
+                out.println("NAMEACCEPTED " + name);
 
                 // Accept messages from this client and broadcast them.
                 while (true) {
                     String input = in.nextLine();
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
-                    }
-                    for (PrintWriter writer : writers) {
-                        writer.println("MESSAGE " + name + ": " + input);
+                    } else if (input.toLowerCase().startsWith("/msg")) {
+                        // Handle private messages
+                        String[] parts = input.split(" ", 3); // Split into 3 parts: /msg, recipient, message
+                        if (parts.length == 3) {
+                            String recipient = parts[1];
+                            String privateMessage = parts[2];
+                            boolean recipientFound = false;
+                            for (PrintWriter writer : writers) {
+                                if (names.contains(recipient)) {
+                                    writer.println("PRIVATE " + name + ": " + privateMessage);
+                                    System.out.println("Private message from " + name + " to " + recipient + ": " + privateMessage);
+                                    recipientFound = true;
+                                }
+                            }
+                            if (!recipientFound) {
+                                out.println("MESSAGE Recipient " + recipient + " not found.");
+                            }
+                        } else {
+                            out.println("MESSAGE Invalid private message format. Use /msg <recipient> <message>");
+                        }
+                    } else {
+                        // Broadcast the message to all clients
+                        for (PrintWriter writer : writers) {
+                            writer.println("MESSAGE " + name + ": " + input);
+                            System.out.println("Broadcast message from " + name + ": " + input);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -112,9 +137,11 @@ public class ChatServer {
                         writer.println("MESSAGE " + name + " has left");
                     }
                 }
-                try { socket.close(); } catch (IOException e) {}
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                }
             }
         }
     }
 }
-
