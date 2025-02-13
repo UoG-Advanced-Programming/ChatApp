@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -14,9 +15,7 @@ public class ClientGUI {
     private JFrame frame;
     private JTextField textField;
     private JTextArea messageArea;
-    private DefaultListModel<String> userListModel;
-    private JList<String> userList;
-    private JButton sendButton, quitButton;
+    private JButton sendButton, historyButton, activeUsersButton;
 
     private Set<String> connectedUsers = new HashSet<>();
 
@@ -35,77 +34,100 @@ public class ClientGUI {
 
     private void initializeGUI() {
         frame = new JFrame("Chatter");
-        textField = new JTextField(40);
+        frame.setLayout(new BorderLayout());
+
+        // 📌 Control Panel (Top)
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        historyButton = new JButton("History");
+        historyButton.addActionListener(e -> loadChatHistory());
+
+        activeUsersButton = new JButton("Active Users");
+        activeUsersButton.addActionListener(e -> showActiveUsers());
+
+        controlPanel.add(historyButton);
+        controlPanel.add(activeUsersButton);
+
+        // 📌 Chat Area (Center)
         messageArea = new JTextArea(16, 40);
         messageArea.setEditable(false);
-        textField.setEditable(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
 
+        JScrollPane chatScrollPane = new JScrollPane(messageArea);
+
+        // 📌 Input Panel (Bottom)
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        textField = new JTextField(40);
         sendButton = new JButton("Send");
-        quitButton = new JButton("Quit");
 
-        userListModel = new DefaultListModel<>();
-        userList = new JList<>(userListModel);
-
-        // Layout improvements
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new BorderLayout());
         inputPanel.add(textField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
 
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BorderLayout());
-        rightPanel.add(new JLabel("Online Users:"), BorderLayout.NORTH);
-        rightPanel.add(new JScrollPane(userList), BorderLayout.CENTER);
-        rightPanel.add(quitButton, BorderLayout.SOUTH);
-
-        frame.setLayout(new BorderLayout());
+        // 📌 Frame Layout
+        frame.add(controlPanel, BorderLayout.NORTH);  // Control panel at the top
+        frame.add(chatScrollPane, BorderLayout.CENTER);
         frame.add(inputPanel, BorderLayout.SOUTH);
-        frame.add(new JScrollPane(messageArea), BorderLayout.CENTER);
-        frame.add(rightPanel, BorderLayout.EAST);
         frame.pack();
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
-            }
-        });
-
-        quitButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                client.disconnect();
-            }
-        });
-
-        textField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
-            }
-        });
+        // 📌 Event Listeners
+        sendButton.addActionListener(e -> sendMessage());
+        textField.addActionListener(e -> sendMessage());
     }
 
-    public void sendMessage() {
+    private void sendMessage() {
         String message = textField.getText().trim();
         if (!message.isEmpty()) {
-            if (!userList.isSelectionEmpty()) {
-                message = "@private " + userList.getSelectedValue() + " " + message;
-            }
             client.sendMessage(message);
             textField.setText("");
         }
     }
 
     public void showMessage(String message) {
-        messageArea.append(message + "\n");
+        SwingUtilities.invokeLater(() -> {
+            String formattedMessage = "[" + java.time.LocalTime.now().withNano(0) + "] " + message;
+            messageArea.append(formattedMessage + "\n");
+
+            saveChatMessage(formattedMessage);  // Save chat history
+        });
     }
 
     public void updateUsers(Set<String> users) {
         connectedUsers = users;
-        userListModel.clear();
-        for (String user : users) {
-            userListModel.addElement(user);
+    }
+
+    private void showActiveUsers() {
+        if (connectedUsers.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No active users.", "Active Users", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            StringBuilder userList = new StringBuilder("Active Users:\n");
+            for (String user : connectedUsers) {
+                userList.append("• ").append(user).append("\n");
+            }
+            JOptionPane.showMessageDialog(frame, userList.toString(), "Active Users", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void saveChatMessage(String message) {
+        try (FileWriter writer = new FileWriter("chat_history.txt", true)) {
+            writer.write(message + "\n");
+        } catch (IOException ex) {
+            showError("Failed to save chat.");
+        }
+    }
+
+    private void loadChatHistory() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("chat_history.txt"))) {
+            messageArea.setText(""); // Clear current chat
+            String line;
+            while ((line = reader.readLine()) != null) {
+                messageArea.append(line + "\n");
+            }
+        } catch (IOException ex) {
+            showError("Failed to load chat history.");
         }
     }
 
