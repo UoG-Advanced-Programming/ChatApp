@@ -15,8 +15,6 @@ public class ClientHandler implements Runnable {
     private Set<String> names;
     private Set<PrintWriter> writers;
     private CoordinatorManager coordinatorManager;
-    private boolean isMuted = false; // Track if this user is muted
-    private static Set<String> mutedUsers = new HashSet<>(); // Track all muted users
 
     public ClientHandler(Socket socket, Set<String> names, Set<PrintWriter> writers, CoordinatorManager coordinatorManager) {
         this.socket = socket;
@@ -39,7 +37,7 @@ public class ClientHandler implements Runnable {
                 synchronized (names) {
                     if (!name.isEmpty() && !names.contains(name)) {
                         names.add(name);
-                        coordinatorManager.assignCoordinator(name);
+                        coordinatorManager.assignCoordinator(name, out);
                         break;
                     }
                 }
@@ -59,16 +57,8 @@ public class ClientHandler implements Runnable {
                     return;
                 } else if (input.toLowerCase().startsWith("/msg")) {
                     handlePrivateMessage(input);
-                } else if (input.toLowerCase().startsWith("/kick") && coordinatorManager.getCoordinator().equals(name)) {
-                    handleKickCommand(input);
-                } else if (input.toLowerCase().startsWith("/mute") && coordinatorManager.getCoordinator().equals(name)) {
-                    handleMuteCommand(input);
-                } else if (input.toLowerCase().startsWith("/unmute") && coordinatorManager.getCoordinator().equals(name)) {
-                    handleUnmuteCommand(input);
-                } else if (!isMuted && !mutedUsers.contains(name)) {
+                } else {
                     notifyAllClients("MESSAGE " + name + ": " + input);
-                } else if (isMuted || mutedUsers.contains(name)) {
-                    out.println("MESSAGE You are muted and cannot send messages.");
                 }
             }
         } catch (Exception e) {
@@ -96,60 +86,6 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleKickCommand(String input) {
-        String[] parts = input.split(" ", 2);
-        if (parts.length == 2) {
-            String userToKick = parts[1];
-            if (names.contains(userToKick)) {
-                // Notify the kicked user
-                for (PrintWriter writer : writers) {
-                    if (writer != out) {
-                        writer.println("MESSAGE You have been kicked by the coordinator.");
-                    }
-                }
-                // Remove the user from the names and writers sets
-                names.remove(userToKick);
-                writers.removeIf(writer -> writer == out);
-                notifyAllClients("MESSAGE " + userToKick + " has been kicked by the coordinator.");
-                ChatServer.broadcastUserList();
-            } else {
-                out.println("MESSAGE User " + userToKick + " not found.");
-            }
-        } else {
-            out.println("MESSAGE Invalid kick command. Use /kick <username>");
-        }
-    }
-
-    private void handleMuteCommand(String input) {
-        String[] parts = input.split(" ", 2);
-        if (parts.length == 2) {
-            String userToMute = parts[1];
-            if (names.contains(userToMute)) {
-                mutedUsers.add(userToMute);
-                notifyAllClients("MESSAGE " + userToMute + " has been muted by the coordinator.");
-            } else {
-                out.println("MESSAGE User " + userToMute + " not found.");
-            }
-        } else {
-            out.println("MESSAGE Invalid mute command. Use /mute <username>");
-        }
-    }
-
-    private void handleUnmuteCommand(String input) {
-        String[] parts = input.split(" ", 2);
-        if (parts.length == 2) {
-            String userToUnmute = parts[1];
-            if (names.contains(userToUnmute)) {
-                mutedUsers.remove(userToUnmute);
-                notifyAllClients("MESSAGE " + userToUnmute + " has been unmuted by the coordinator.");
-            } else {
-                out.println("MESSAGE User " + userToUnmute + " not found.");
-            }
-        } else {
-            out.println("MESSAGE Invalid unmute command. Use /unmute <username>");
-        }
-    }
-
     private void notifyAllClients(String message) {
         for (PrintWriter writer : writers) {
             writer.println(message);
@@ -160,6 +96,7 @@ public class ClientHandler implements Runnable {
     private void cleanup() {
         if (out != null) {
             writers.remove(out);
+            coordinatorManager.removeUser(out);
         }
         if (name != null) {
             System.out.println(name + " is leaving");
