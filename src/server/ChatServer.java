@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 public class ChatServer {
     private static Set<String> names = new HashSet<>();
     private static Set<PrintWriter> writers = new HashSet<>();
-    private static CoordinatorManager coordinatorManager = new CoordinatorManager();
+    private static CoordinatorManager coordinatorManager = new CoordinatorManager(writers);
 
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");

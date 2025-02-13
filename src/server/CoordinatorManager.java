@@ -1,12 +1,20 @@
 package server;
 
+import java.util.Set;
+import java.io.PrintWriter;
+
 public class CoordinatorManager {
     private String coordinator = null;
+    private Set<PrintWriter> writers;
+
+    public CoordinatorManager(Set<PrintWriter> writers) {
+        this.writers = writers;
+    }
 
     public synchronized void assignCoordinator(String name) {
         if (coordinator == null) {
             coordinator = name;
-            System.out.println("Coordinator assigned: " + coordinator);
+            announceCoordinator();
         }
     }
 
@@ -17,7 +25,21 @@ public class CoordinatorManager {
     public synchronized void reassignCoordinator(String leavingName) {
         if (coordinator != null && coordinator.equals(leavingName)) {
             coordinator = null;
-            System.out.println("Coordinator left, new coordinator will be assigned.");
+            // Assign a new coordinator if there are other users
+            if (!writers.isEmpty()) {
+                for (PrintWriter writer : writers) {
+                    coordinator = writer.toString(); // Assign the first available user as coordinator
+                    break;
+                }
+                announceCoordinator();
+            }
         }
+    }
+
+    private void announceCoordinator() {
+        for (PrintWriter writer : writers) {
+            writer.println("COORDINATOR " + coordinator);
+        }
+        System.out.println("Coordinator is now: " + coordinator);
     }
 }
