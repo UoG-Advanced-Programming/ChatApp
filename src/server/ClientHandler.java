@@ -51,38 +51,14 @@ public class ClientHandler implements Runnable {
             // 🚀 Send updated user list
             ChatServer.broadcastUserList();
 
-            while (true) {
+            while (in.hasNextLine()) {
                 String input = in.nextLine();
-                if (input.toLowerCase().startsWith("/quit")) {
-                    return;
-                } else if (input.toLowerCase().startsWith("/msg")) {
-                    handlePrivateMessage(input);
-                } else {
-                    notifyAllClients("MESSAGE " + name + ": " + input);
-                }
+                notifyAllClients("MESSAGE " + name + ": " + input);
             }
         } catch (Exception e) {
             System.out.println(e);
         } finally {
             cleanup();
-        }
-    }
-
-    private void handlePrivateMessage(String input) {
-        String[] parts = input.split(" ", 3);
-        if (parts.length == 3) {
-            String recipient = parts[1];
-            String privateMessage = parts[2];
-            if (names.contains(recipient)) {
-                for (PrintWriter writer : writers) {
-                    writer.println("PRIVATE " + name + ": " + privateMessage);
-                }
-                System.out.println("Private message from " + name + " to " + recipient + ": " + privateMessage);
-            } else {
-                out.println("MESSAGE Recipient " + recipient + " not found.");
-            }
-        } else {
-            out.println("MESSAGE Invalid private message format. Use /msg <recipient> <message>");
         }
     }
 
