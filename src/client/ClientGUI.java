@@ -112,24 +112,46 @@ public class ClientGUI {
             chatWindows.put(user, newChatArea);
             chatListModel.addElement(user);
         }
+
+        if (user != null) {
+            switchChat(user);  // Switch to the private chat immediately
+        }
     }
+
+
 
     private void sendMessage() {
         String message = textField.getText().trim();
         if (!message.isEmpty()) {
-            client.sendMessage(message);
+            if (currentChat.equals("General")) {
+                client.sendMessage(message);  // Keep General chat format unchanged
+            } else {
+                client.sendMessage("PRIVATE " + currentChat + " " + message);
+            }
             textField.setText("");
         }
     }
 
-    public void showMessage(String message) {
+
+
+    public void showMessage(String chatName, String message) {
         SwingUtilities.invokeLater(() -> {
             String formattedMessage = "[" + java.time.LocalTime.now().withNano(0) + "] " + message;
-            messageArea.append(formattedMessage + "\n");
 
-            saveChatMessage(formattedMessage);  // Save chat history
+            chatWindows.computeIfAbsent(chatName, k -> {
+                JTextArea newChatArea = new JTextArea(16, 40);
+                newChatArea.setEditable(false);
+                chatListModel.addElement(chatName);
+                return newChatArea;
+            });
+
+            chatWindows.get(chatName).append(formattedMessage + "\n");
+
+            saveChatMessage(formattedMessage);
         });
     }
+
+
 
     public void updateUsers(Set<String> users) {
         connectedUsers = users;
