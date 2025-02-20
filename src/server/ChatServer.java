@@ -24,7 +24,6 @@ public class ChatServer {
         }
     }
 
-    // 🚀 Sends the updated user list to all clients
     public static void broadcastUserList() {
         StringBuilder userListMessage = new StringBuilder("USERS ");
         synchronized (names) {
