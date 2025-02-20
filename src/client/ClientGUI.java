@@ -2,24 +2,22 @@ package client;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 public class ClientGUI {
-    private static ClientGUI instance;  // Singleton pattern for GUI instance
-
+    private static ClientGUI instance;
     private ChatClient client;
     private JFrame frame;
     private JTextField textField;
     private JTextArea messageArea;
-    private JButton sendButton, historyButton, activeUsersButton;
-
+    private JButton sendButton, historyButton, activeUsersButton, startChatButton;
+    private JList<String> chatList;
+    private DefaultListModel<String> chatListModel;
+    private Map<String, JTextArea> chatWindows;
     private Set<String> connectedUsers = new HashSet<>();
+    private String currentChat = "General";
 
-    // Singleton pattern: Ensures only one instance of GUI
     public static ClientGUI getInstance(ChatClient client) {
         if (instance == null) {
             instance = new ClientGUI(client);
@@ -29,6 +27,7 @@ public class ClientGUI {
 
     private ClientGUI(ChatClient client) {
         this.client = client;
+        this.chatWindows = new HashMap<>();
         initializeGUI();
     }
 
@@ -36,46 +35,83 @@ public class ClientGUI {
         frame = new JFrame("Chatter");
         frame.setLayout(new BorderLayout());
 
-        // 📌 Control Panel (Top)
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        // Left Panel: Chat List
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        chatListModel = new DefaultListModel<>();
+        chatList = new JList<>(chatListModel);
+        chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        chatList.addListSelectionListener(e -> switchChat(chatList.getSelectedValue()));
+        leftPanel.add(new JScrollPane(chatList), BorderLayout.CENTER);
 
-        historyButton = new JButton("History");
-        historyButton.addActionListener(e -> loadChatHistory());
+        startChatButton = new JButton("Start Chat");
+        startChatButton.addActionListener(e -> startPrivateChat());
+        leftPanel.add(startChatButton, BorderLayout.NORTH);
 
-        activeUsersButton = new JButton("Active Users");
-        activeUsersButton.addActionListener(e -> showActiveUsers());
-
-        controlPanel.add(historyButton);
-        controlPanel.add(activeUsersButton);
-
-        // 📌 Chat Area (Center)
+        // Center Panel: Chat Window
+        JPanel centerPanel = new JPanel(new BorderLayout());
         messageArea = new JTextArea(16, 40);
         messageArea.setEditable(false);
         messageArea.setLineWrap(true);
         messageArea.setWrapStyleWord(true);
+        centerPanel.add(new JScrollPane(messageArea), BorderLayout.CENTER);
 
-        JScrollPane chatScrollPane = new JScrollPane(messageArea);
+        chatWindows.put("General", messageArea);
+        chatListModel.addElement("General");
 
-        // 📌 Input Panel (Bottom)
+        // Bottom Panel: Input Field
         JPanel inputPanel = new JPanel(new BorderLayout());
         textField = new JTextField(40);
         sendButton = new JButton("Send");
 
         inputPanel.add(textField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
+        sendButton.addActionListener(e -> sendMessage());
+        textField.addActionListener(e -> sendMessage());
 
-        // 📌 Frame Layout
-        frame.add(controlPanel, BorderLayout.NORTH);  // Control panel at the top
-        frame.add(chatScrollPane, BorderLayout.CENTER);
+        // Right Panel: Control Panel
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        historyButton = new JButton("History");
+        activeUsersButton = new JButton("Active Users");
+
+        historyButton.addActionListener(e -> loadChatHistory());
+        activeUsersButton.addActionListener(e -> showActiveUsers());
+
+        controlPanel.add(historyButton);
+        controlPanel.add(activeUsersButton);
+
+        // Frame Layout
+        frame.add(leftPanel, BorderLayout.WEST);
+        frame.add(centerPanel, BorderLayout.CENTER);
         frame.add(inputPanel, BorderLayout.SOUTH);
+        frame.add(controlPanel, BorderLayout.NORTH);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+    }
 
-        // 📌 Event Listeners
-        sendButton.addActionListener(e -> sendMessage());
-        textField.addActionListener(e -> sendMessage());
+    private void switchChat(String chatName) {
+        if (chatName != null && chatWindows.containsKey(chatName)) {
+            currentChat = chatName;
+            messageArea.setText(chatWindows.get(chatName).getText());
+        }
+    }
+
+    private void startPrivateChat() {
+        if (connectedUsers.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No active users to start a chat with.", "Start Chat", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String user = (String) JOptionPane.showInputDialog(frame, "Select user to chat with:", "Start Private Chat",
+                JOptionPane.PLAIN_MESSAGE, null, connectedUsers.toArray(), null);
+
+        if (user != null && !chatWindows.containsKey(user)) {
+            JTextArea newChatArea = new JTextArea(16, 40);
+            newChatArea.setEditable(false);
+            chatWindows.put(user, newChatArea);
+            chatListModel.addElement(user);
+        }
     }
 
     private void sendMessage() {
@@ -131,15 +167,15 @@ public class ClientGUI {
         }
     }
 
-    public void enableInput() {
-        textField.setEditable(true);
-    }
-
     public void showError(String errorMessage) {
         JOptionPane.showMessageDialog(frame, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public void setTitle(String title) {
         frame.setTitle(title);
+    }
+
+    public void enableInput() {
+        textField.setEditable(true);
     }
 }
