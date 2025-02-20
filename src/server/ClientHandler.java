@@ -9,6 +9,7 @@ import java.util.HashSet;
 
 public class ClientHandler implements Runnable {
     private String name;
+    private String ip;
     private Socket socket;
     private Scanner in;
     private PrintWriter out;
@@ -28,6 +29,9 @@ public class ClientHandler implements Runnable {
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
 
+            // Store IP address
+            ip = socket.getInetAddress().getHostAddress();
+
             while (true) {
                 out.println("SUBMITNAME");
                 name = in.nextLine();
@@ -37,26 +41,44 @@ public class ClientHandler implements Runnable {
                 synchronized (names) {
                     if (!name.isEmpty() && !names.contains(name)) {
                         names.add(name);
-                        coordinatorManager.assignCoordinator(name, out);
+                        coordinatorManager.assignCoordinator(name, out, ip);
                         break;
                     }
                 }
             }
 
             out.println("COORDINATOR " + coordinatorManager.getCoordinator());
-            notifyAllClients("MESSAGE " + name + " has joined");
+            notifyAllClients("MESSAGE " + name + " has joined from IP: " + ip);
             writers.add(out);
             out.println("NAMEACCEPTED " + name);
 
-            // 🚀 Send updated user list
             ChatServer.broadcastUserList();
 
             while (in.hasNextLine()) {
                 String input = in.nextLine();
-                notifyAllClients("MESSAGE " + name + ": " + input);
+                if (input.toLowerCase().startsWith("/getdetails ")) {
+                    String targetName = input.substring("/getdetails ".length()).trim();
+                    coordinatorManager.requestDetails(name, targetName, out);
+                } else if (input.startsWith("APPROVE ")) {
+                    String[] parts = input.split(" ", 3);
+                    if (parts.length == 3) {
+                        String requesterName = parts[1];
+                        String targetName = parts[2];
+                        coordinatorManager.handleDetailsResponse(requesterName, targetName, true);
+                    }
+                } else if (input.startsWith("DENY ")) {
+                    String[] parts = input.split(" ", 3);
+                    if (parts.length == 3) {
+                        String requesterName = parts[1];
+                        String targetName = parts[2];
+                        coordinatorManager.handleDetailsResponse(requesterName, targetName, false);
+                    }
+                } else {
+                    notifyAllClients("MESSAGE " + name + ": " + input);
+                }
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Error: " + e.getMessage());
         } finally {
             cleanup();
         }
@@ -75,12 +97,11 @@ public class ClientHandler implements Runnable {
             coordinatorManager.removeUser(out);
         }
         if (name != null) {
-            System.out.println(name + " is leaving");
+            System.out.println(name + " is leaving.");
             names.remove(name);
-            notifyAllClients("MESSAGE " + name + " has left");
+            notifyAllClients("MESSAGE " + name + " has left.");
             coordinatorManager.reassignCoordinator(name);
 
-            // 🚀 Send updated user list after user leaves
             ChatServer.broadcastUserList();
         }
         try {
