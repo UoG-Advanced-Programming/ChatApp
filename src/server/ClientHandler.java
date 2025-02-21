@@ -105,8 +105,11 @@ public class ClientHandler implements Runnable {
 
             if (targetWriter != null) {
                 // Send message to recipient
-                targetWriter.println("PRIVATE " + name + privateMessage);
+                targetWriter.println("PRIVATE " + name + " " + privateMessage);
                 targetWriter.flush();
+
+                senderWriter.println("PRIVATE " + name + " " + privateMessage);
+                senderWriter.flush();
 
                 // Log message to console for debugging
                 System.out.println("[PRIVATE] " + name + " → " + targetName + ": " + privateMessage);

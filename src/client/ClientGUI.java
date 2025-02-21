@@ -118,40 +118,50 @@ public class ClientGUI {
         }
     }
 
-
-
     private void sendMessage() {
         String message = textField.getText().trim();
         if (!message.isEmpty()) {
+            String formattedMessage = "[" + java.time.LocalTime.now().withNano(0) + "] You: " + message;
+
+            // Append the message immediately to the correct chat window
+            chatWindows.computeIfAbsent(currentChat, k -> {
+                JTextArea newChatArea = new JTextArea(16, 40);
+                newChatArea.setEditable(false);
+                chatListModel.addElement(currentChat);
+                return newChatArea;
+            }).append(formattedMessage + "\n");
+
+            saveChatMessage(formattedMessage);
+
+            // Send the message to the server
             if (currentChat.equals("General")) {
-                client.sendMessage(message);  // Keep General chat format unchanged
+                client.sendMessage(message);
             } else {
                 client.sendMessage("PRIVATE " + currentChat + " " + message);
             }
+
             textField.setText("");
         }
     }
-
-
 
     public void showMessage(String chatName, String message) {
         SwingUtilities.invokeLater(() -> {
             String formattedMessage = "[" + java.time.LocalTime.now().withNano(0) + "] " + message;
 
-            chatWindows.computeIfAbsent(chatName, k -> {
-                JTextArea newChatArea = new JTextArea(16, 40);
-                newChatArea.setEditable(false);
-                chatListModel.addElement(chatName);
-                return newChatArea;
-            });
+            if (!chatName.equals(client.getUsername())) {
+                chatWindows.computeIfAbsent(chatName, k -> {
+                    JTextArea newChatArea = new JTextArea(16, 40);
+                    newChatArea.setEditable(false);
+                    chatListModel.addElement(chatName);
+                    return newChatArea;
+                });
+            }
 
             chatWindows.get(chatName).append(formattedMessage + "\n");
 
             saveChatMessage(formattedMessage);
         });
     }
-
-
 
     public void updateUsers(Set<String> users) {
         connectedUsers = users;

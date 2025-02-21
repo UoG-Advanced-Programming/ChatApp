@@ -20,18 +20,25 @@ public class ClientHandler implements Runnable {
         while (in.hasNextLine()) {
             String line = in.nextLine();
 
+            System.out.println(line);
+
             if (line.startsWith("NAMEACCEPTED")) {
                 gui.setTitle("Chatter - " + line.substring(13));
                 gui.enableInput();
             } else if (line.startsWith("MESSAGE")) {
-                gui.showMessage("General", line.substring(8));  // Show in General chat
+                String sender = line.split(" ", 3)[1].split(":")[0];
+                if (!sender.equals(client.getUsername())) {
+                    gui.showMessage("General", line.substring(8));  // Show in General chat
+                }
             } else if (line.startsWith("PRIVATE")) {
-                String[] parts = line.split(" ", 3);  // Expected format: "PRIVATE sourceUser message"
+                String[] parts = line.split(" ", 3);
                 if (parts.length == 3) {
-                    String sourceUser = parts[1];   // Sender's name
+                    String sender = parts[1];   // Sender's name
                     String msgContent = parts[2];  // The actual message
 
-                    gui.showMessage(sourceUser, msgContent);  // Show in the sender's private chat tab
+                    if (!sender.equals(client.getUsername())) {
+                        gui.showMessage(sender, msgContent);
+                    }
                 }
             } else if (line.startsWith("USERS")) {
                 Set<String> users = new HashSet<>();

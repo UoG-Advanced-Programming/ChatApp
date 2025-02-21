@@ -14,6 +14,7 @@ public class ChatClient {
     private PrintWriter out;
     private ClientGUI gui;
     private Set<String> connectedUsers = new HashSet<>();
+    private String Username;
 
     public ChatClient(String serverAddress) {
         this.serverAddress = serverAddress;
@@ -28,7 +29,8 @@ public class ChatClient {
 
             new Thread(new ClientHandler(in, gui, this)).start();
 
-            out.println(promptForName());
+            Username = promptForName();
+            out.println(Username);
 
         } catch (IOException e) {
             gui.showError("Unable to connect to server.");
@@ -46,11 +48,6 @@ public class ChatClient {
         gui.updateUsers(users);
     }
 
-    public void disconnect() {
-        sendMessage("/quit");
-        System.exit(0);
-    }
-
     private String promptForName() {
         return JOptionPane.showInputDialog(
                 null,
@@ -58,6 +55,10 @@ public class ChatClient {
                 "Screen Name Selection",
                 JOptionPane.PLAIN_MESSAGE
         );
+    }
+
+    public String getUsername() {
+        return Username;
     }
 
 
