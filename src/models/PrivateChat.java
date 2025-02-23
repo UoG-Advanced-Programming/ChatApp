@@ -7,7 +7,7 @@ public class PrivateChat extends Chat {
     private User user2Id;
 
     // Constructor
-    public PrivateChat(int chatId, String chatName, User user1Id, User user2Id) {
+    public PrivateChat(String chatId, String chatName, User user1Id, User user2Id) {
         super(chatId, chatName, ChatType.PRIVATE, LocalDateTime.now());
         this.user1Id = user1Id;
         this.user2Id = user2Id;

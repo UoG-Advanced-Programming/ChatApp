@@ -3,30 +3,30 @@ package models;
 import java.time.LocalDateTime;
 
 public class Message {
-    private int messageId;
-    private int chatId;
-    private int senderId;
+    private String messageId;
+    private Chat chat;
+    private User sender;
     private String content;
     private LocalDateTime timestamp;
 
     // Constructor
-    public Message(int messageId, int chatId, int senderId, String content, LocalDateTime timestamp) {
+    public Message(String messageId, Chat chat, User sender, String content, LocalDateTime timestamp) {
         this.messageId = messageId;
-        this.chatId = chatId;
-        this.senderId = senderId;
+        this.chat = chat;
+        this.sender = sender;
         this.content = content;
         this.timestamp = timestamp;
     }
 
     // Getters and Setters
-    public int getMessageId() { return messageId; }
-    public void setMessageId(int messageId) { this.messageId = messageId; }
+    public String getMessageId() { return messageId; }
+    public void setMessageId(String messageId) { this.messageId = messageId; }
 
-    public int getChatId() { return chatId; }
-    public void setChatId(int chatId) { this.chatId = chatId; }
+    public Chat getChat() { return chat; }
+    public void setChat(Chat chat) { this.chat = chat; }
 
-    public int getSenderId() { return senderId; }
-    public void setSenderId(int senderId) { this.senderId = senderId; }
+    public User getSender() { return sender; }
+    public void setSender(User sender) { this.sender = sender; }
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }

@@ -3,13 +3,13 @@ package models;
 import java.time.LocalDateTime;
 
 public abstract class Chat {
-    protected int id;
+    protected String id;
     protected String name;
-    protected ChatType type;
+    public ChatType type;
     protected LocalDateTime timestamp;
 
     // Constructor
-    public Chat(int id, String name, ChatType type, LocalDateTime timestamp) {
+    public Chat(String id, String name, ChatType type, LocalDateTime timestamp) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -17,8 +17,8 @@ public abstract class Chat {
     }
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

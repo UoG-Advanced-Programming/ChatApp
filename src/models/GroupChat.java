@@ -7,7 +7,7 @@ public class GroupChat extends Chat {
     private final List<User> users;
 
     // Constructor
-    public GroupChat(int chatId, String chatName) {
+    public GroupChat(String chatId, String chatName) {
         super(chatId, chatName, ChatType.GROUP, java.time.LocalDateTime.now());
         this.users = new ArrayList<>();
     }
