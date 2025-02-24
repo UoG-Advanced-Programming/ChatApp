@@ -1,55 +1,56 @@
 package client;
 
-import java.util.Scanner;
-import java.util.Set;
-import java.util.HashSet;
+import models.ChatType;
+import models.Communication;
+import models.MessageSerializer;
+import models.TextMessage;
+import models.UserUpdateMessage;
+import models.SystemMessage;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 public class ClientHandler implements Runnable {
-    private Scanner in;
+    private BufferedReader in;
     private ClientGUI gui;
     private ChatClient client;
 
-    public ClientHandler(Scanner in, ClientGUI gui, ChatClient client) {
+    public ClientHandler(BufferedReader in, ChatClient client) {
         this.in = in;
-        this.gui = gui;
         this.client = client;
+        this.gui = ClientGUI.getInstance(this.client);
     }
 
     @Override
     public void run() {
-        while (in.hasNextLine()) {
-            String line = in.nextLine();
-
-            System.out.println(line);
-
-            if (line.startsWith("NAMEACCEPTED")) {
-                gui.setTitle("Chatter - " + line.substring(13));
-                gui.enableInput();
-            } else if (line.startsWith("MESSAGE")) {
-                String sender = line.split(" ", 3)[1].split(":")[0];
-                if (!sender.equals(client.getUsername())) {
-                    gui.showMessage("General", line.substring(8));  // Show in General chat
-                }
-            } else if (line.startsWith("PRIVATE")) {
-                String[] parts = line.split(" ", 3);
-                if (parts.length == 3) {
-                    String sender = parts[1];   // Sender's name
-                    String msgContent = parts[2];  // The actual message
-
-                    if (!sender.equals(client.getUsername())) {
-                        gui.showMessage(sender, msgContent);
-                    }
-                }
-            } else if (line.startsWith("USERS")) {
-                Set<String> users = new HashSet<>();
-                String[] userArray = line.substring(6).split(",");
-                for (String user : userArray) {
-                    if (!user.trim().isEmpty()) {
-                        users.add(user.trim());
-                    }
-                }
-                client.updateUserList(users);
+        String message;
+        try {
+            while ((message = in.readLine()) != null) {
+                processMessage(message);
             }
+        } catch (IOException e) {
+            System.err.println("Error in communication: " + e.getMessage());
+        }
+    }
+
+    public void processMessage(String message) {
+        String jsonMessage = message.substring("MESSAGE:".length());
+        Communication receivedMessage = MessageSerializer.deserialize(jsonMessage);
+        switch (receivedMessage.getType()) {
+            case TEXT:
+                TextMessage textMessage = (TextMessage) receivedMessage;
+                gui.showMessage(textMessage);
+                break;
+
+            case USER_UPDATE:
+                UserUpdateMessage userUpdateMessage = (UserUpdateMessage) receivedMessage;
+                System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
+                break;
+
+            case SYSTEM:
+                SystemMessage systemMessage = (SystemMessage) receivedMessage;
+                System.out.println("System Notification: " + systemMessage.getSystemContent());
+                break;
         }
     }
 }
