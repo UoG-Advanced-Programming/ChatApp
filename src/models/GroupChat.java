@@ -8,7 +8,7 @@ public class GroupChat extends Chat {
 
     // Constructor
     public GroupChat(String chatId, String chatName) {
-        super(chatId, chatName, ChatType.GROUP, java.time.LocalDateTime.now());
+        super(chatId, chatName, java.time.LocalDateTime.now());
         this.users = new ArrayList<>();
     }
 
@@ -41,5 +41,10 @@ public class GroupChat extends Chat {
             System.out.print(user.getUsername() + " ");
         }
         System.out.println();
+    }
+
+    @Override
+    public ChatType getType() {
+        return ChatType.GROUP;
     }
 }
