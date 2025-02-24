@@ -1,66 +1,77 @@
 package client;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.Scanner;
-import java.util.HashSet;
-import java.util.Set;
-import javax.swing.JOptionPane;
+import models.IDGenerator;
+import models.Message;
+import models.User;
+import models.MessageSerializer;
+
+import java.io.*;
+import java.net.*;
+import javax.swing.*;
+import java.awt.GridLayout;
 
 public class ChatClient {
-    private String serverAddress;
-    private Scanner in;
+    private final String host;
+    private final int port;
+    private Socket socket;
     private PrintWriter out;
-    private ClientGUI gui;
-    private Set<String> connectedUsers = new HashSet<>();
-    private String Username;
+    private BufferedReader in;
+    User user;
 
-    public ChatClient(String serverAddress) {
-        this.serverAddress = serverAddress;
-        this.gui = ClientGUI.getInstance(this);
+    public ChatClient(String host) {
+        this.host = host;
+        this.port = 7005;
+        connectToServer();
     }
 
-    public void start() throws IOException {
+    private void connectToServer() {
         try {
-            Socket socket = new Socket(serverAddress, 7005);
-            in = new Scanner(socket.getInputStream());
+            socket = new Socket(host, port);
             out = new PrintWriter(socket.getOutputStream(), true);
-
-            new Thread(new ClientHandler(in, gui, this)).start();
-
-            Username = promptForName();
-            out.println(Username);
-
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("Connected to the server at " + host + ":" + port);
         } catch (IOException e) {
-            gui.showError("Unable to connect to server.");
+            System.err.println("Error connecting to the server: " + e.getMessage());
+        }
+    }
+    public void start() {
+        String[] credentials = promptForCredentials();
+        assert credentials != null;
+        user = new User(IDGenerator.generateUUID(), credentials[0], credentials[1]);
+
+        new Thread(new ClientHandler(in, this)).start();
+    }
+
+    public void sendMessage(Message message) {
+        try {
+            assert out != null;
+            String jsonMessage = MessageSerializer.serialize(message);
+            out.println("MESSAGE:" + jsonMessage);
+        } catch (Exception e) {
+            System.err.println("Error sending message: " + e.getMessage());
         }
     }
 
-    public void sendMessage(String message) {
-        if (out != null) {
-            out.println(message);
+    private String[] promptForCredentials() {
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+
+        JTextField usernameField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
+
+        panel.add(new JLabel("Choose a screen name:"));
+        panel.add(usernameField);
+        panel.add(new JLabel("Enter your password:"));
+        panel.add(passwordField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+            return new String[] { username, password };
         }
+        return null;
     }
-
-    public void updateUserList(Set<String> users) {
-        this.connectedUsers = users;
-        gui.updateUsers(users);
-    }
-
-    private String promptForName() {
-        return JOptionPane.showInputDialog(
-                null,
-                "Choose a screen name:",
-                "Screen Name Selection",
-                JOptionPane.PLAIN_MESSAGE
-        );
-    }
-
-    public String getUsername() {
-        return Username;
-    }
-
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
