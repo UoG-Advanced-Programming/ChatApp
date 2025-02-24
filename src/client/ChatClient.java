@@ -1,9 +1,6 @@
 package client;
 
-import models.IDGenerator;
-import models.Message;
-import models.User;
-import models.MessageSerializer;
+import models.*;
 
 import java.io.*;
 import java.net.*;
@@ -42,11 +39,11 @@ public class ChatClient {
         new Thread(new ClientHandler(in, this)).start();
     }
 
-    public void sendMessage(Message message) {
+    public void send(Communication message) {
         try {
             assert out != null;
             String jsonMessage = MessageSerializer.serialize(message);
-            out.println("MESSAGE:" + jsonMessage);
+            out.println(jsonMessage);
         } catch (Exception e) {
             System.err.println("Error sending message: " + e.getMessage());
         }
