@@ -23,11 +23,9 @@ public abstract class Chat {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public ChatType getType() { return type; }
-    public void setType(ChatType type) { this.type = type; }
-
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
     public abstract void displayChatInfo();
+    public abstract ChatType getType();
 }

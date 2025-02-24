@@ -42,4 +42,9 @@ public class GroupChat extends Chat {
         }
         System.out.println();
     }
+
+    @Override
+    public ChatType getType() {
+        return ChatType.GROUP;
+    }
 }

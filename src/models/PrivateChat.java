@@ -24,4 +24,9 @@ public class PrivateChat extends Chat {
     public void displayChatInfo() {
         System.out.println("Private Chat: " + getName() + " between User " + user1Id + " and User " + user2Id);
     }
+
+    @Override
+    public ChatType getType() {
+        return ChatType.PRIVATE;
+    }
 }
