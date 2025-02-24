@@ -8,7 +8,7 @@ public class PrivateChat extends Chat {
 
     // Constructor
     public PrivateChat(String chatId, String chatName, User user1Id, User user2Id) {
-        super(chatId, chatName, ChatType.PRIVATE, LocalDateTime.now());
+        super(chatId, chatName, LocalDateTime.now());
         this.user1Id = user1Id;
         this.user2Id = user2Id;
     }

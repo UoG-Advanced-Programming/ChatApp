@@ -5,14 +5,12 @@ import java.time.LocalDateTime;
 public abstract class Chat {
     protected String id;
     protected String name;
-    public ChatType type;
     protected LocalDateTime timestamp;
 
     // Constructor
-    public Chat(String id, String name, ChatType type, LocalDateTime timestamp) {
+    public Chat(String id, String name, LocalDateTime timestamp) {
         this.id = id;
         this.name = name;
-        this.type = type;
         this.timestamp = timestamp;
     }
 
