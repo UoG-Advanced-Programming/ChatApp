@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 public class UserUpdateMessage extends Communication {
     private User user;
-    private String status; // e.g., "online", "offline", "profile_updated"
+    private UserStatus status;
 
-    public UserUpdateMessage(String messageId, User user, String status, LocalDateTime timestamp) {
+    public UserUpdateMessage(String messageId, User user, UserStatus status, LocalDateTime timestamp) {
         super(messageId, timestamp);
         this.user = user;
         this.status = status;
@@ -15,8 +15,8 @@ public class UserUpdateMessage extends Communication {
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public UserStatus getStatus() { return status; }
+    public void setStatus(UserStatus status) { this.status = status; }
 
     @Override
     public CommunicationType getType() {

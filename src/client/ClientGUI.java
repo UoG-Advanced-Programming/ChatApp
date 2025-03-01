@@ -1,213 +1,113 @@
 package client;
 
+import models.*;
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientGUI {
-    private static ClientGUI instance;
-    private ChatClient client;
     private JFrame frame;
-    private JTextField textField;
-    private JTextArea messageArea;
-    private JButton sendButton, historyButton, activeUsersButton, startChatButton;
-    private JList<String> chatList;
-    private DefaultListModel<String> chatListModel;
-    private Map<String, JTextArea> chatWindows;
-    private Set<String> connectedUsers = new HashSet<>();
-    private String currentChat = "General";
+    private JPanel controlPanel;
+    private JPanel chatListPanel;
+    private JPanel chatAreaPanel;
+    private JTextArea chatDisplay;
+    private JTextField messageField;
+    private JButton sendButton, startChatButton;
+    private JList<Chat> chatList;
+    private Chat current_chat;
+    private ChatClient client;
+    private List<User> active_users = new ArrayList<>(List.of(new User("1", "Arad", "h")));
+    private DefaultListModel<Chat> chatListModel;
 
-    public static ClientGUI getInstance(ChatClient client) {
-        if (instance == null) {
-            instance = new ClientGUI(client);
-        }
-        return instance;
-    }
-
-    private ClientGUI(ChatClient client) {
+    public ClientGUI(ChatClient client) {
         this.client = client;
-        this.chatWindows = new HashMap<>();
-        initializeGUI();
-    }
-
-    private void initializeGUI() {
-        frame = new JFrame("Chatter");
+        frame = new JFrame("Chat Client");
+        frame.setSize(600, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        // Left Panel: Chat List
-        JPanel leftPanel = new JPanel(new BorderLayout());
+        // Control Panel (Top)
+        controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        startChatButton = new JButton("Start Chat");
+        startChatButton.addActionListener(e -> startPrivateChat());
+        controlPanel.add(startChatButton);
+        frame.add(controlPanel, BorderLayout.NORTH);
+
+        // Chat List Panel (Left)
+        chatListPanel = new JPanel(new BorderLayout());
+        chatListPanel.setPreferredSize(new Dimension(150, frame.getHeight()));
         chatListModel = new DefaultListModel<>();
         chatList = new JList<>(chatListModel);
         chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         chatList.addListSelectionListener(e -> switchChat(chatList.getSelectedValue()));
-        leftPanel.add(new JScrollPane(chatList), BorderLayout.CENTER);
+        chatListPanel.add(new JScrollPane(chatList), BorderLayout.CENTER);
+        frame.add(chatListPanel, BorderLayout.WEST);
 
-        startChatButton = new JButton("Start Chat");
-        startChatButton.addActionListener(e -> startPrivateChat());
-        leftPanel.add(startChatButton, BorderLayout.NORTH);
+        // Chat Area Panel (Center)
+        chatAreaPanel = new JPanel();
+        chatAreaPanel.setLayout(new BorderLayout());
+        chatDisplay = new JTextArea();
+        chatDisplay.setEditable(false);
+        chatAreaPanel.add(new JScrollPane(chatDisplay), BorderLayout.CENTER);
 
-        // Center Panel: Chat Window
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        messageArea = new JTextArea(16, 40);
-        messageArea.setEditable(false);
-        messageArea.setLineWrap(true);
-        messageArea.setWrapStyleWord(true);
-        centerPanel.add(new JScrollPane(messageArea), BorderLayout.CENTER);
-
-        chatWindows.put("General", messageArea);
-        chatListModel.addElement("General");
-
-        // Bottom Panel: Input Field
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        textField = new JTextField(40);
+        // Message Input Panel
+        JPanel messagePanel = new JPanel();
+        messagePanel.setLayout(new BorderLayout());
+        messageField = new JTextField();
         sendButton = new JButton("Send");
+        sendButton.addActionListener(e -> sendMessage(current_chat, chatDisplay, messageField));
+        messagePanel.add(messageField, BorderLayout.CENTER);
+        messagePanel.add(sendButton, BorderLayout.EAST);
+        chatAreaPanel.add(messagePanel, BorderLayout.SOUTH);
 
-        inputPanel.add(textField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-        sendButton.addActionListener(e -> sendMessage());
-        textField.addActionListener(e -> sendMessage());
+        frame.add(chatAreaPanel, BorderLayout.CENTER);
 
-        // Right Panel: Control Panel
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        historyButton = new JButton("History");
-        activeUsersButton = new JButton("Active Users");
-
-        historyButton.addActionListener(e -> loadChatHistory());
-        activeUsersButton.addActionListener(e -> showActiveUsers());
-
-        controlPanel.add(historyButton);
-        controlPanel.add(activeUsersButton);
-
-        // Frame Layout
-        frame.add(leftPanel, BorderLayout.WEST);
-        frame.add(centerPanel, BorderLayout.CENTER);
-        frame.add(inputPanel, BorderLayout.SOUTH);
-        frame.add(controlPanel, BorderLayout.NORTH);
-        frame.pack();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
-    private void switchChat(String chatName) {
-        if (chatName != null && chatWindows.containsKey(chatName)) {
-            currentChat = chatName;
-            messageArea.setText(chatWindows.get(chatName).getText());
+    private void sendMessage(Chat chat, JTextArea chatDisplay, JTextField messageField) {
+        String messageText = messageField.getText().trim();
+        if (!messageText.isEmpty()) {
+            TextMessage message = new TextMessage(IDGenerator.generateUUID(), chat, client.user, messageText, LocalDateTime.now());
+            client.send(message);
+            chatDisplay.append("Me: " + messageText + "\n");
+            messageField.setText("");
         }
     }
 
+    private void showMessage(PrivateChat chat, String sender, String message) {
+        chatDisplay.append(sender + ": " + message + "\n");
+    }
+
     private void startPrivateChat() {
-        if (connectedUsers.isEmpty()) {
+        if (active_users.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "No active users to start a chat with.", "Start Chat", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
-        String user = (String) JOptionPane.showInputDialog(frame, "Select user to chat with:", "Start Private Chat",
-                JOptionPane.PLAIN_MESSAGE, null, connectedUsers.toArray(), null);
+        User user = (User) JOptionPane.showInputDialog(frame, "Select user to chat with:", "Start Private Chat",
+                JOptionPane.PLAIN_MESSAGE, null, active_users.toArray(), null);
 
-        if (user != null && !chatWindows.containsKey(user)) {
+        // and if the chat with that user didn't already exist
+        if (user != null) {
+            PrivateChat chat = new PrivateChat(IDGenerator.generateUUID(), "Private Chat", client.user, user);
             JTextArea newChatArea = new JTextArea(16, 40);
             newChatArea.setEditable(false);
-            chatWindows.put(user, newChatArea);
-            chatListModel.addElement(user);
-        }
-
-        if (user != null) {
-            switchChat(user);  // Switch to the private chat immediately
+            chatListModel.addElement(chat);
+            switchChat(chat);
         }
     }
 
-    private void sendMessage() {
-        String message = textField.getText().trim();
-        if (!message.isEmpty()) {
-            String formattedMessage = "[" + java.time.LocalTime.now().withNano(0) + "] You: " + message;
-
-            // Append the message immediately to the correct chat window
-            chatWindows.computeIfAbsent(currentChat, k -> {
-                JTextArea newChatArea = new JTextArea(16, 40);
-                newChatArea.setEditable(false);
-                chatListModel.addElement(currentChat);
-                return newChatArea;
-            }).append(formattedMessage + "\n");
-
-            saveChatMessage(formattedMessage);
-
-            // Send the message to the server
-            if (currentChat.equals("General")) {
-                client.sendMessage(message);
-            } else {
-                client.sendMessage("PRIVATE " + currentChat + " " + message);
-            }
-
-            textField.setText("");
-        }
+    private void switchChat(Chat chat) {
+        current_chat = chat;
+        chatDisplay.setText("");
     }
 
-    public void showMessage(String chatName, String message) {
-        SwingUtilities.invokeLater(() -> {
-            String formattedMessage = "[" + java.time.LocalTime.now().withNano(0) + "] " + message;
-
-            if (!chatName.equals(client.getUsername())) {
-                chatWindows.computeIfAbsent(chatName, k -> {
-                    JTextArea newChatArea = new JTextArea(16, 40);
-                    newChatArea.setEditable(false);
-                    chatListModel.addElement(chatName);
-                    return newChatArea;
-                });
-            }
-
-            chatWindows.get(chatName).append(formattedMessage + "\n");
-
-            saveChatMessage(formattedMessage);
-        });
-    }
-
-    public void updateUsers(Set<String> users) {
-        connectedUsers = users;
-    }
-
-    private void showActiveUsers() {
-        if (connectedUsers.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "No active users.", "Active Users", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            StringBuilder userList = new StringBuilder("Active Users:\n");
-            for (String user : connectedUsers) {
-                userList.append("• ").append(user).append("\n");
-            }
-            JOptionPane.showMessageDialog(frame, userList.toString(), "Active Users", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    private void saveChatMessage(String message) {
-        try (FileWriter writer = new FileWriter("chat_history.txt", true)) {
-            writer.write(message + "\n");
-        } catch (IOException ex) {
-            showError("Failed to save chat.");
-        }
-    }
-
-    private void loadChatHistory() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("chat_history.txt"))) {
-            messageArea.setText(""); // Clear current chat
-            String line;
-            while ((line = reader.readLine()) != null) {
-                messageArea.append(line + "\n");
-            }
-        } catch (IOException ex) {
-            showError("Failed to load chat history.");
-        }
-    }
-
-    public void showError(String errorMessage) {
-        JOptionPane.showMessageDialog(frame, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void setTitle(String title) {
-        frame.setTitle(title);
-    }
-
-    public void enableInput() {
-        textField.setEditable(true);
+    public void updateUsers(List<User> users) {
+        active_users = users;
     }
 }
