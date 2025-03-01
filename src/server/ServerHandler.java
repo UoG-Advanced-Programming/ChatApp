@@ -1,35 +1,40 @@
 package server;
 
-import client.ClientGUI;
 import models.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class ClientHandler implements Runnable {
+public class ServerHandler implements Runnable {
     private Socket socket;
     private BufferedReader in;
-    private ChatServer server;
 
-    public ClientHandler(Socket socket) {
+    public ServerHandler(Socket socket) {
         this.socket = socket;
-        this.in = in;
-        this.server = server;
+        try {
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            System.err.println("Error initializing input stream: " + e.getMessage());
+        }
     }
 
     public void run() {
-        String message;
         try {
+            String message;
             while ((message = in.readLine()) != null) {
                 processMessage(message);
             }
         } catch (IOException e) {
             System.err.println("Error in communication: " + e.getMessage());
+        } finally {
+            try {
+                in.close();
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("Error closing socket: " + e.getMessage());
+            }
         }
     }
 
