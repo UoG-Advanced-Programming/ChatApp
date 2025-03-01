@@ -18,7 +18,7 @@ public class ClientHandler implements Runnable {
     public ClientHandler(BufferedReader in, ChatClient client) {
         this.in = in;
         this.client = client;
-        this.gui = ClientGUI.getInstance(this.client);
+        this.gui = new ClientGUI(this.client);
     }
 
     @Override
@@ -33,22 +33,21 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void processMessage(String message) {
-        String jsonMessage = message.substring("MESSAGE:".length());
-        Communication receivedMessage = MessageSerializer.deserialize(jsonMessage);
-        switch (receivedMessage.getType()) {
+    public void processMessage(String jsonMessage) {
+        Communication message = MessageSerializer.deserialize(jsonMessage);
+        switch (message.getType()) {
             case TEXT:
-                TextMessage textMessage = (TextMessage) receivedMessage;
-                gui.showMessage(textMessage);
+                TextMessage textMessage = (TextMessage) message;
+                // gui.showMessage(textMessage);
                 break;
 
             case USER_UPDATE:
-                UserUpdateMessage userUpdateMessage = (UserUpdateMessage) receivedMessage;
+                UserUpdateMessage userUpdateMessage = (UserUpdateMessage) message;
                 System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
                 break;
 
             case SYSTEM:
-                SystemMessage systemMessage = (SystemMessage) receivedMessage;
+                SystemMessage systemMessage = (SystemMessage) message;
                 System.out.println("System Notification: " + systemMessage.getSystemContent());
                 break;
         }
