@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.*;
 import javax.swing.*;
 import java.awt.GridLayout;
+import java.time.LocalDateTime;
 
 public class ChatClient {
     private final String host;
@@ -35,6 +36,8 @@ public class ChatClient {
         String[] credentials = promptForCredentials();
         assert credentials != null;
         user = new User(IDGenerator.generateUUID(), credentials[0], credentials[1]);
+        UserUpdateMessage message = new UserUpdateMessage(IDGenerator.generateUUID(), user, UserStatus.ONLINE, LocalDateTime.now());
+        send(message);
 
         new Thread(new ClientHandler(in, this)).start();
     }
