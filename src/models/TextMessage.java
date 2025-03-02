@@ -7,8 +7,8 @@ public class TextMessage extends Communication {
     private User sender;
     private String content;
 
-    public TextMessage(String messageId, Chat chat, User sender, String content, LocalDateTime timestamp) {
-        super(messageId, timestamp);
+    public TextMessage(Chat chat, User sender, String content) {
+        super();
         this.chat = chat;
         this.sender = sender;
         this.content = content;

@@ -1,12 +1,10 @@
 package models;
 
-import java.time.LocalDateTime;
-
 public class SystemMessage extends Communication {
     private String systemContent;
 
-    public SystemMessage(String messageId, String systemContent, LocalDateTime timestamp) {
-        super(messageId, timestamp);
+    public SystemMessage(String systemContent) {
+        super();
         this.systemContent = systemContent;
     }
 

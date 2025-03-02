@@ -6,8 +6,8 @@ public class UserUpdateMessage extends Communication {
     private User user;
     private UserStatus status;
 
-    public UserUpdateMessage(String messageId, User user, UserStatus status, LocalDateTime timestamp) {
-        super(messageId, timestamp);
+    public UserUpdateMessage(User user, UserStatus status) {
+        super();
         this.user = user;
         this.status = status;
     }

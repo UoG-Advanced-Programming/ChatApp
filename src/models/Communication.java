@@ -6,9 +6,9 @@ public abstract class Communication {
     protected String messageId;
     protected LocalDateTime timestamp;
 
-    public Communication(String messageId, LocalDateTime timestamp) {
-        this.messageId = messageId;
-        this.timestamp = timestamp;
+    public Communication() {
+        this.messageId = IDGenerator.generateUUID();
+        this.timestamp = LocalDateTime.now();
     }
 
     public String getMessageId() { return messageId; }
