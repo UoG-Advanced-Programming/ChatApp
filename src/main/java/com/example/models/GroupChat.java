@@ -1,4 +1,4 @@
-package models;
+package com.example.models;
 
 public class GroupChat extends Chat {
     public GroupChat(String chatName) {

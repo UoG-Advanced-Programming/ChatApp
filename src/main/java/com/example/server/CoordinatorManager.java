@@ -1,4 +1,4 @@
-package server;
+package com.example.server;
 
 import java.util.Set;
 import java.util.Map;

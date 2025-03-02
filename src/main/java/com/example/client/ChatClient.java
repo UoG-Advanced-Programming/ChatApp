@@ -1,12 +1,11 @@
-package client;
+package com.example.client;
 
-import models.*;
+import com.example.models.*;
 
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
 import java.awt.GridLayout;
-import java.time.LocalDateTime;
 
 public class ChatClient {
     private final String host;
@@ -35,8 +34,8 @@ public class ChatClient {
     public void start() {
         String[] credentials = promptForCredentials();
         assert credentials != null;
-        user = new User(IDGenerator.generateUUID(), credentials[0], credentials[1]);
-        UserUpdateMessage message = new UserUpdateMessage(IDGenerator.generateUUID(), user, UserStatus.ONLINE, LocalDateTime.now());
+        user = new User(credentials[0], credentials[1]);
+        UserUpdateMessage message = new UserUpdateMessage(user, UserStatus.ONLINE);
         send(message);
 
         new Thread(new ClientHandler(in, this)).start();

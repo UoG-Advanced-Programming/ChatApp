@@ -1,4 +1,4 @@
-package models;
+package com.example.models;
 
 public class UserUpdateMessage extends Communication {
     private User user;

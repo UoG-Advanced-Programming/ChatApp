@@ -1,4 +1,4 @@
-package models;
+package com.example.models;
 
 public class TextMessage extends Communication {
     private Chat chat;

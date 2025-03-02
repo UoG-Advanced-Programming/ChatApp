@@ -1,10 +1,12 @@
-package client;
+package com.example.client;
 
-import models.*;
+import com.example.models.Chat;
+import com.example.models.PrivateChat;
+import com.example.models.TextMessage;
+import com.example.models.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class ClientGUI {
     private JList<Chat> chatList;
     private Chat current_chat;
     private ChatClient client;
-    private List<User> active_users = new ArrayList<>(List.of(new User("1", "Arad", "h")));
+    private List<User> active_users = new ArrayList<>(List.of(new User("Arad", "h")));
     private DefaultListModel<Chat> chatListModel;
 
     public ClientGUI(ChatClient client) {
@@ -72,7 +74,7 @@ public class ClientGUI {
     private void sendMessage(Chat chat, JTextArea chatDisplay, JTextField messageField) {
         String messageText = messageField.getText().trim();
         if (!messageText.isEmpty()) {
-            TextMessage message = new TextMessage(IDGenerator.generateUUID(), chat, client.user, messageText, LocalDateTime.now());
+            TextMessage message = new TextMessage(chat, client.user, messageText);
             client.send(message);
             chatDisplay.append("Me: " + messageText + "\n");
             messageField.setText("");
@@ -94,7 +96,7 @@ public class ClientGUI {
 
         // and if the chat with that user didn't already exist
         if (user != null) {
-            PrivateChat chat = new PrivateChat(IDGenerator.generateUUID(), "Private Chat", client.user, user);
+            PrivateChat chat = new PrivateChat("Private Chat");
             JTextArea newChatArea = new JTextArea(16, 40);
             newChatArea.setEditable(false);
             chatListModel.addElement(chat);

@@ -1,4 +1,4 @@
-package models;
+package com.example.models;
 
 import com.google.gson.*;
 

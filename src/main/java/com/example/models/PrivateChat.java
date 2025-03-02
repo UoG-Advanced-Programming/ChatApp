@@ -1,6 +1,4 @@
-package models;
-
-import java.time.LocalDateTime;
+package com.example.models;
 
 public class PrivateChat extends Chat {
     public PrivateChat(String chatName) {
