@@ -1,7 +1,5 @@
 package models;
 
-import java.time.LocalDateTime;
-
 public class TextMessage extends Communication {
     private Chat chat;
     private User sender;

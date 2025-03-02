@@ -1,7 +1,5 @@
 package models;
 
-import java.time.LocalDateTime;
-
 public class UserUpdateMessage extends Communication {
     private User user;
     private UserStatus status;
