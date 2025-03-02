@@ -9,8 +9,8 @@ public class User {
     private LocalDateTime createdAt;
 
     // Constructor
-    public User(String id, String username, String password) {
-        this.id = id;
+    public User(String username, String password) {
+        this.id = IDGenerator.generateUUID();
         this.username = username;
         this.password = password;
         this.createdAt = LocalDateTime.now();
