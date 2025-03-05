@@ -9,10 +9,12 @@ import java.net.Socket;
 
 public class ServerHandler implements Runnable {
     private Socket socket;
+    private ChatServer server;
     private BufferedReader in;
 
-    public ServerHandler(Socket socket) {
+    public ServerHandler(Socket socket, ChatServer server) {
         this.socket = socket;
+        this.server = server;
         try {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
@@ -40,21 +42,7 @@ public class ServerHandler implements Runnable {
 
     public void processMessage(String jsonMessage) {
         Communication message = MessageSerializer.deserialize(jsonMessage);
-        switch (message.getType()) {
-            case TEXT:
-                TextMessage textMessage = (TextMessage) message;
-                System.out.println("User " + textMessage.getSender().getUsername() + ": " + textMessage.getContent());
-                break;
-
-            case USER_UPDATE:
-                UserUpdateMessage userUpdateMessage = (UserUpdateMessage) message;
-                System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
-                break;
-
-            case SYSTEM:
-                SystemMessage systemMessage = (SystemMessage) message;
-                System.out.println("System Notification: " + systemMessage.getSystemContent());
-                break;
-        }
+        MessageProcessor processor = MessageProcessorFactory.getProcessor(message.getType());
+        processor.processMessage(message, this.server);
     }
 }
