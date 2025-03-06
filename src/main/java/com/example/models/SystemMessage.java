@@ -1,18 +1,26 @@
 package com.example.models;
 
 public class SystemMessage extends Communication {
-    private String systemContent;
+    private SystemMessageType systemType;
+    private Chat chat;
 
-    public SystemMessage(String systemContent) {
-        super();
-        this.systemContent = systemContent;
+    // Constructor for chat initialization
+    public SystemMessage(SystemMessageType systemType, Chat chat) {
+        super(CommunicationType.SYSTEM);
+        this.systemType = systemType;
+        this.chat = chat;
     }
 
-    public String getSystemContent() { return systemContent; }
-    public void setSystemContent(String systemContent) { this.systemContent = systemContent; }
+    // Getters
+    public SystemMessageType getSystemType() {
+        return systemType;
+    }
 
-    @Override
-    public CommunicationType getType() {
+    public Chat getChat() {
+        return chat;
+    }
+
+    @Override public CommunicationType getType() {
         return CommunicationType.SYSTEM;
     }
 }
