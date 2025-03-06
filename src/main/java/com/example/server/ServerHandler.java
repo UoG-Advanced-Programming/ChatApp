@@ -5,12 +5,14 @@ import com.example.models.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ServerHandler implements Runnable {
     private Socket socket;
     private ChatServer server;
     private BufferedReader in;
+    private PrintWriter out;
 
     public ServerHandler(Socket socket, ChatServer server) {
         this.socket = socket;
@@ -19,6 +21,11 @@ public class ServerHandler implements Runnable {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             System.err.println("Error initializing input stream: " + e.getMessage());
+        }
+        try {
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+        } catch (IOException e) {
+            System.err.println("Error initializing output stream: " + e.getMessage());
         }
     }
 
@@ -43,6 +50,6 @@ public class ServerHandler implements Runnable {
     public void processMessage(String jsonMessage) {
         Communication message = MessageSerializer.deserialize(jsonMessage);
         MessageProcessor processor = MessageProcessorFactory.getProcessor(message.getType());
-        processor.processMessage(message, this.server);
+        processor.processMessage(message, this.server, out);
     }
 }
