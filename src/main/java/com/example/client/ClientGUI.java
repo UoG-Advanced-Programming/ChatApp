@@ -1,9 +1,6 @@
 package com.example.client;
 
-import com.example.models.Chat;
-import com.example.models.PrivateChat;
-import com.example.models.TextMessage;
-import com.example.models.User;
+import com.example.models.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,9 +31,17 @@ public class ClientGUI {
         // Control Panel (Top)
         controlPanel = new JPanel();
         controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        startChatButton = new JButton("Start Chat");
+
+        // Add "Start Private Chat" button
+        startChatButton = new JButton("Start Private Chat");
         startChatButton.addActionListener(e -> startPrivateChat());
         controlPanel.add(startChatButton);
+
+        // Add "Start Group Chat" button
+        JButton startGroupChatButton = new JButton("Start Group Chat");
+        startGroupChatButton.addActionListener(e -> startGroupChat());
+        controlPanel.add(startGroupChatButton);
+
         frame.add(controlPanel, BorderLayout.NORTH);
 
         // Chat List Panel (Left)
@@ -45,6 +50,10 @@ public class ClientGUI {
         chatListModel = new DefaultListModel<>();
         chatList = new JList<>(chatListModel);
         chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Set the custom renderer for the JList
+        chatList.setCellRenderer(new ChatListCellRenderer());
+
         chatList.addListSelectionListener(e -> switchChat(chatList.getSelectedValue()));
         chatListPanel.add(new JScrollPane(chatList), BorderLayout.CENTER);
         frame.add(chatListPanel, BorderLayout.WEST);
@@ -91,22 +100,58 @@ public class ClientGUI {
             return;
         }
 
-        User user = (User) JOptionPane.showInputDialog(frame, "Select user to chat with:", "Start Private Chat",
-                JOptionPane.PLAIN_MESSAGE, null, active_users.toArray(), null);
+        // Show the user selection dialog
+        UserSelectionDialog userDialog = new UserSelectionDialog(frame, active_users);
+        User selectedUser = userDialog.getSelectedUser();
 
-        // and if the chat with that user didn't already exist
-        if (user != null) {
-            PrivateChat chat = new PrivateChat("Private Chat");
-            JTextArea newChatArea = new JTextArea(16, 40);
-            newChatArea.setEditable(false);
-            chatListModel.addElement(chat);
-            switchChat(chat);
+        // If a user was selected, create a new private chat
+        if (selectedUser != null) {
+            PrivateChat chat = new PrivateChat("Private Chat with " + selectedUser.getUsername());
+            if (!hasChat(chat)) {
+                chatListModel.addElement(chat); // Add the chat to the list
+                switchChat(chat); // Switch to the new chat
+            }
+        }
+    }
+
+    private void startGroupChat() {
+        if (active_users.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No active users to start a group chat with.", "Start Group Chat", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Show the group chat creation dialog
+        GroupChatCreationDialog groupChatDialog = new GroupChatCreationDialog(frame, active_users);
+        Object[] groupChatDetails = groupChatDialog.getGroupChatDetails();
+
+        // If the user provided valid details, create a new group chat
+        if (groupChatDetails != null) {
+            String chatName = (String) groupChatDetails[0];
+            List<User> selectedUsers = (List<User>) groupChatDetails[1];
+
+            GroupChat chat = new GroupChat(chatName);
+            for (User user : selectedUsers) {
+                chat.addParticipant(user); // Add selected users to the chat
+            }
+
+            if (!hasChat(chat)) {
+                chatListModel.addElement(chat); // Add the chat to the list
+                switchChat(chat); // Switch to the new chat
+            }
         }
     }
 
     private void switchChat(Chat chat) {
         current_chat = chat;
         chatDisplay.setText("");
+    }
+
+    public boolean hasChat(Chat chat) {
+        return chatListModel.contains(chat);
+    }
+
+    public void addChat(Chat chat) {
+        chatListModel.addElement(chat); // Add to the chat list
     }
 
     public void updateUsers(List<User> users) {
