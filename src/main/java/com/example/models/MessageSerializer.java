@@ -1,16 +1,34 @@
 package com.example.models;
 
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class MessageSerializer {
-    private static final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .registerTypeAdapter(Communication.class, new CommunicationAdapter())
-            .registerTypeAdapter(Chat.class, new ChatAdapter())
-            .create();
+    private static final Gson gson;
+
+    static {
+        // Register subclasses for Communication
+        RuntimeTypeAdapterFactory<Communication> communicationAdapter =
+                RuntimeTypeAdapterFactory.of(Communication.class, "type")
+                        .registerSubtype(TextMessage.class, "TEXT")
+                        .registerSubtype(UserUpdateMessage.class, "USER_UPDATE")
+                        .registerSubtype(SystemMessage.class, "SYSTEM");
+
+        // Register subclasses for Chat
+        RuntimeTypeAdapterFactory<Chat> chatAdapter =
+                RuntimeTypeAdapterFactory.of(Chat.class, "type")
+                        .registerSubtype(GroupChat.class, "group")
+                        .registerSubtype(PrivateChat.class, "private");
+
+        gson = new GsonBuilder()
+                .registerTypeAdapterFactory(communicationAdapter)
+                .registerTypeAdapterFactory(chatAdapter)
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
+    }
 
     public static String serialize(Communication message) {
         return gson.toJson(message);
