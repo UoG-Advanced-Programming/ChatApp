@@ -5,7 +5,7 @@ public class UserUpdateMessage extends Communication {
     private UserStatus status;
 
     public UserUpdateMessage(User user, UserStatus status) {
-        super();
+        super(CommunicationType.USER_UPDATE);
         this.user = user;
         this.status = status;
     }

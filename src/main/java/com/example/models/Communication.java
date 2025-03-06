@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 public abstract class Communication {
     protected String messageId;
     protected LocalDateTime timestamp;
+    protected CommunicationType type;
 
-    public Communication() {
+    public Communication(CommunicationType type) {
         this.messageId = IDGenerator.generateUUID();
         this.timestamp = LocalDateTime.now();
+        this.type = type;
     }
 
     public String getMessageId() { return messageId; }
