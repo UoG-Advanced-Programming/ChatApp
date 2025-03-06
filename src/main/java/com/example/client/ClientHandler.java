@@ -1,11 +1,8 @@
 package com.example.client;
 
-import com.example.models.Communication;
-import com.example.models.MessageSerializer;
-import com.example.models.TextMessage;
-import com.example.models.UserUpdateMessage;
-import com.example.models.SystemMessage;
+import com.example.models.*;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -47,7 +44,12 @@ public class ClientHandler implements Runnable {
 
             case SYSTEM:
                 SystemMessage systemMessage = (SystemMessage) message;
-                System.out.println("System Notification: " + systemMessage.getSystemContent());
+                Chat chat = systemMessage.getChat();
+                SwingUtilities.invokeLater(() -> {
+                    if (!gui.hasChat(chat)) {
+                        gui.addChat(chat);
+                    }
+                });
                 break;
         }
     }
