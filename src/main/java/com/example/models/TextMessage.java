@@ -20,9 +20,4 @@ public class TextMessage extends Communication {
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-
-    @Override
-    public CommunicationType getType() {
-        return CommunicationType.TEXT;
-    }
 }

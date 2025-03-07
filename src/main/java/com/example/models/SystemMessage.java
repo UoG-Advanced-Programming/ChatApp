@@ -19,8 +19,4 @@ public class SystemMessage extends Communication {
     public Chat getChat() {
         return chat;
     }
-
-    @Override public CommunicationType getType() {
-        return CommunicationType.SYSTEM;
-    }
 }
