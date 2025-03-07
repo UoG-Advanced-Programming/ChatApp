@@ -3,13 +3,14 @@ package com.example.models;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Set;
 
 public class GroupChatCreationDialog extends JDialog {
     private JTextField chatNameField;
     private JList<User> userList;
     private boolean confirmed = false;
 
-    public GroupChatCreationDialog(Frame parent, List<User> users) {
+    public GroupChatCreationDialog(Frame parent, Set<User> users) {
         super(parent, "Create Group Chat", true);
         setSize(400, 300);
         setLocationRelativeTo(parent);
