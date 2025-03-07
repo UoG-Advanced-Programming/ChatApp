@@ -15,7 +15,7 @@ public class ChatServer {
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");
         ExecutorService pool = Executors.newFixedThreadPool(500);
-        ChatServer server = new ChatServer(); // Create an instance here
+        ChatServer server = new ChatServer();
         try (ServerSocket listener = new ServerSocket(7005)) {
             while (true) {
                 Socket socket = listener.accept();
@@ -28,14 +28,26 @@ public class ChatServer {
         clientWriters.put(user, writer);
         generalChat.addParticipant(user);
         send(user, new SystemMessage(SystemMessageType.CHAT_INIT,  generalChat));
+
+        // Notify all clients about the new user
+        broadcast(new UserUpdateMessage(user, UserStatus.ONLINE));
     }
 
     public void removeClient(User user) {
         clientWriters.remove(user);
+
+        // Notify all clients about the user leaving
+        broadcast(new UserUpdateMessage(user, UserStatus.OFFLINE));
     }
 
     public PrintWriter getClient(User user) {
         return clientWriters.get(user);
+    }
+
+    public void broadcast(Communication message) {
+        for (PrintWriter writer : clientWriters.values()) {
+            writer.println(MessageSerializer.serialize(message));
+        }
     }
 
     private void send(User user, Communication message) {
