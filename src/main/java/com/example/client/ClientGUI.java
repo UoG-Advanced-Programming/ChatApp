@@ -151,7 +151,10 @@ public class ClientGUI {
     }
 
     public void addChat(Chat chat) {
-        chatListModel.addElement(chat); // Add to the chat list
+        chatListModel.addElement(chat);
+        if (chat.getName().equals("General Chat")) {
+            switchChat(chat);
+        }
     }
 
     public void updateUsers(List<User> users) {
