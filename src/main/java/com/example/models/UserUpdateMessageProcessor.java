@@ -11,7 +11,6 @@ public class UserUpdateMessageProcessor extends MessageProcessor {
         System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
         if (userUpdateMessage.getStatus().equals(UserStatus.ONLINE)) {
             server.addClient(userUpdateMessage.getUser(), out);
-
         }
     }
 }
