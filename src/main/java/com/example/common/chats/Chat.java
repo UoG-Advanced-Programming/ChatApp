@@ -69,4 +69,14 @@ public abstract class Chat {
     // Abstract methods
     public abstract void displayChatInfo();
     public abstract ChatType getType();
+
+    /**
+     * Checks if this private chat involves the same two users as another chat.
+     *
+     * @param other The other private chat to compare.
+     * @return True if the chats involve the same two users, false otherwise.
+     */
+    public boolean involvesSameUsers(PrivateChat other) {
+        return this.participants.equals(other.getParticipants());
+    }
 }
