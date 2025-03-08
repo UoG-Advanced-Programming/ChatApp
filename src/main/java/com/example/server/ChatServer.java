@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 
 public class ChatServer {
     private final GroupChat generalChat = new GroupChat("General Chat");
-    private Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>();
+    private final Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");

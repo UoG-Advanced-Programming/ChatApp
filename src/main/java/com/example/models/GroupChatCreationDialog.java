@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 public class GroupChatCreationDialog extends JDialog {
-    private JTextField chatNameField;
-    private JList<User> userList;
+    private final JTextField chatNameField;
+    private final JList<User> userList;
     private boolean confirmed = false;
 
     public GroupChatCreationDialog(Frame parent, Set<User> users) {

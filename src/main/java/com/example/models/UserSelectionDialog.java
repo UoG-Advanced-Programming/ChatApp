@@ -2,11 +2,10 @@ package com.example.models;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 import java.util.Set;
 
 public class UserSelectionDialog extends JDialog {
-    private JList<User> userList;
+    private final JList<User> userList;
     private boolean confirmed = false;
 
     public UserSelectionDialog(Frame parent, Set<User> users) {

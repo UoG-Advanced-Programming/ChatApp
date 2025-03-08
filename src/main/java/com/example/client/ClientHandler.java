@@ -6,14 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 public class ClientHandler implements Runnable {
-    private BufferedReader in;
-    private ClientGUI gui;
-    private ChatClient client;
+    private final BufferedReader in;
+    private final ClientGUI gui;
 
     public ClientHandler(BufferedReader in, ChatClient client) {
         this.in = in;
-        this.client = client;
-        this.gui = new ClientGUI(this.client);
+        this.gui = new ClientGUI(client);
     }
 
     @Override

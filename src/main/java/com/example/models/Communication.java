@@ -19,5 +19,5 @@ public abstract class Communication {
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
-    public CommunicationType getType() { return type; };
+    public CommunicationType getType() { return type; }
 }

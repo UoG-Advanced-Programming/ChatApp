@@ -1,8 +1,8 @@
 package com.example.models;
 
 public class SystemMessage extends Communication {
-    private SystemMessageType systemType;
-    private Chat chat;
+    private final SystemMessageType systemType;
+    private final Chat chat;
 
     // Constructor for chat initialization
     public SystemMessage(SystemMessageType systemType, Chat chat) {

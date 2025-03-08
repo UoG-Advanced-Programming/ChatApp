@@ -10,7 +10,6 @@ import java.awt.GridLayout;
 public class ChatClient {
     private final String host;
     private final int port;
-    private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     User user;
@@ -23,7 +22,7 @@ public class ChatClient {
 
     private void connectToServer() {
         try {
-            socket = new Socket(host, port);
+            Socket socket = new Socket(host, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             System.out.println("Connected to the server at " + host + ":" + port);
@@ -72,7 +71,7 @@ public class ChatClient {
         return null;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Pass the server IP as the sole command line argument");
             return;

@@ -9,9 +9,8 @@ public class UserListCellRenderer extends DefaultListCellRenderer {
         // Call the parent method to set up the default rendering
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-        if (value instanceof User) {
+        if (value instanceof User user) {
             // Display the username of the User object
-            User user = (User) value;
             setText(user.getUsername()); // Use the getUsername() method of the User object
         }
 

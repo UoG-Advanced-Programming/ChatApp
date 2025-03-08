@@ -9,9 +9,8 @@ public class ChatListCellRenderer extends DefaultListCellRenderer {
         // Call the parent method to set up the default rendering
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-        if (value instanceof Chat) {
+        if (value instanceof Chat chat) {
             // Display the name of the Chat object
-            Chat chat = (Chat) value;
             setText(chat.getName()); // Use the getName() method of the Chat object
         }
 

@@ -10,18 +10,14 @@ import java.util.List;
 import java.util.Set;
 
 public class ClientGUI {
-    private JFrame frame;
-    private JPanel controlPanel;
-    private JPanel chatListPanel;
-    private JPanel chatAreaPanel;
-    private JTextArea chatDisplay;
-    private JTextField messageField;
-    private JButton sendButton, startChatButton;
-    private JList<Chat> chatList;
+    private final JFrame frame;
+    private final JTextArea chatDisplay;
+    private final JTextField messageField;
+    private final JList<Chat> chatList;
     private Chat current_chat;
-    private ChatClient client;
-    private Set<User> active_users = new HashSet<>();
-    private DefaultListModel<Chat> chatListModel;
+    private final ChatClient client;
+    private final Set<User> active_users = new HashSet<>();
+    private final DefaultListModel<Chat> chatListModel;
 
     public ClientGUI(ChatClient client) {
         this.client = client;
@@ -31,23 +27,12 @@ public class ClientGUI {
         frame.setLayout(new BorderLayout());
 
         // Control Panel (Top)
-        controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-        // Add "Start Private Chat" button
-        startChatButton = new JButton("Start Private Chat");
-        startChatButton.addActionListener(e -> startPrivateChat());
-        controlPanel.add(startChatButton);
-
-        // Add "Start Group Chat" button
-        JButton startGroupChatButton = new JButton("Start Group Chat");
-        startGroupChatButton.addActionListener(e -> startGroupChat());
-        controlPanel.add(startGroupChatButton);
+        JPanel controlPanel = getJPanel();
 
         frame.add(controlPanel, BorderLayout.NORTH);
 
         // Chat List Panel (Left)
-        chatListPanel = new JPanel(new BorderLayout());
+        JPanel chatListPanel = new JPanel(new BorderLayout());
         chatListPanel.setPreferredSize(new Dimension(150, frame.getHeight()));
         chatListModel = new DefaultListModel<>();
         chatList = new JList<>(chatListModel);
@@ -61,7 +46,7 @@ public class ClientGUI {
         frame.add(chatListPanel, BorderLayout.WEST);
 
         // Chat Area Panel (Center)
-        chatAreaPanel = new JPanel();
+        JPanel chatAreaPanel = new JPanel();
         chatAreaPanel.setLayout(new BorderLayout());
         chatDisplay = new JTextArea();
         chatDisplay.setEditable(false);
@@ -71,8 +56,8 @@ public class ClientGUI {
         JPanel messagePanel = new JPanel();
         messagePanel.setLayout(new BorderLayout());
         messageField = new JTextField();
-        sendButton = new JButton("Send");
-        sendButton.addActionListener(e -> sendMessage(current_chat, chatDisplay, messageField));
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(e -> sendMessage(current_chat, messageField));
         messagePanel.add(messageField, BorderLayout.CENTER);
         messagePanel.add(sendButton, BorderLayout.EAST);
         chatAreaPanel.add(messagePanel, BorderLayout.SOUTH);
@@ -82,8 +67,25 @@ public class ClientGUI {
         frame.setVisible(true);
     }
 
-    private void sendMessage(Chat chat, JTextArea chatDisplay, JTextField messageField) {
+    private JPanel getJPanel() {
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        // Add "Start Private Chat" button
+        JButton startChatButton = new JButton("Start Private Chat");
+        startChatButton.addActionListener(e -> startPrivateChat());
+        controlPanel.add(startChatButton);
+
+        // Add "Start Group Chat" button
+        JButton startGroupChatButton = new JButton("Start Group Chat");
+        startGroupChatButton.addActionListener(e -> startGroupChat());
+        controlPanel.add(startGroupChatButton);
+        return controlPanel;
+    }
+
+    private void sendMessage(Chat chat, JTextField messageField) {
         String messageText = messageField.getText().trim();
+        messageField.setText("");
         if (!messageText.isEmpty()) {
             TextMessage message = new TextMessage(chat, client.user, messageText);
             client.send(message);
@@ -177,7 +179,7 @@ public class ClientGUI {
                 Chat chat = chatListModel.getElementAt(i);
                 if (chat instanceof GroupChat && chat.getName().equals("General Chat")) {
                     // Add the user to the "General Chat"
-                    ((GroupChat) chat).addParticipant(user);
+                    chat.addParticipant(user);
 
                     // Refresh the chat list UI to reflect the changes
                     chatListModel.set(i, chat); // Update the chat in the list

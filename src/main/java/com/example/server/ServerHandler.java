@@ -9,8 +9,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ServerHandler implements Runnable {
-    private Socket socket;
-    private ChatServer server;
+    private final Socket socket;
+    private final ChatServer server;
     private BufferedReader in;
     private PrintWriter out;
 
