@@ -16,8 +16,8 @@ public class ClientTextMessageProcessor extends ClientMessageProcessor {
         if (!gui.hasChat(chat)) {
             gui.getChatListModel().addElement(chat);
 
-            if (chat.getClass().equals(PrivateChat.class)) {
-                chat.setName(textMessage.getSender().getUsername());
+            if (chat instanceof PrivateChat privateChat) {
+                privateChat.setName(textMessage.getSender().getUsername());
             }
         }
 
