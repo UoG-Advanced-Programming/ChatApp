@@ -1,0 +1,24 @@
+package com.example.common.messages;
+
+import com.example.common.chats.Chat;
+
+public class SystemMessage extends Communication {
+    private final SystemMessageType systemType;
+    private final Chat chat;
+
+    // Constructor for chat initialization
+    public SystemMessage(SystemMessageType systemType, Chat chat) {
+        super(CommunicationType.SYSTEM);
+        this.systemType = systemType;
+        this.chat = chat;
+    }
+
+    // Getters
+    public SystemMessageType getSystemType() {
+        return systemType;
+    }
+
+    public Chat getChat() {
+        return chat;
+    }
+}
