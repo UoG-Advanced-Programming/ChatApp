@@ -23,6 +23,7 @@ public class ClientGUI {
     private final ChatClient client;
     private final Set<User> active_users = new HashSet<>();
     private final DefaultListModel<Chat> chatListModel;
+    private final java.util.Map<Chat, StringBuilder> chatHistories = new java.util.HashMap<>();
     private final User user;
 
     public ClientGUI(ChatClient client, User user) {
@@ -90,6 +91,10 @@ public class ClientGUI {
         return controlPanel;
     }
 
+    public DefaultListModel<Chat> getChatListModel() {
+        return chatListModel;
+    }
+
     private void sendMessage(Chat chat, JTextField messageField) {
         String messageText = messageField.getText().trim();
         messageField.setText("");
@@ -100,11 +105,20 @@ public class ClientGUI {
     }
 
     public void showMessage(TextMessage message) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMM dd yyyy HH:mm"); // Example: "Friday, Mar 07 2025 18:28"
-        String formattedTime = message.getTimestamp().format(formatter);
+        Chat chat = message.getChat();
+        chatHistories.putIfAbsent(chat, new StringBuilder());
 
-        chatDisplay.append("[" + formattedTime + "] " +
-                message.getSender().getUsername() + ": " + message.getContent() + "\n");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMM dd yyyy HH:mm");
+        String formattedTime = message.getTimestamp().format(formatter);
+        String formattedMessage = "[" + formattedTime + "] " +
+                message.getSender().getUsername() + ": " + message.getContent() + "\n";
+
+        getChatHistory(chat).append(formattedMessage);
+
+        // Only display if it's the currently selected chat
+        if (chat.equals(current_chat)) {
+            chatDisplay.append(formattedMessage);
+        }
     }
 
     private void startPrivateChat() {
@@ -121,7 +135,9 @@ public class ClientGUI {
 
         // If a user was selected, create a new private chat
         if (selectedUser != null) {
-            PrivateChat chat = new PrivateChat("Private Chat with " + selectedUser.getUsername());
+            PrivateChat chat = new PrivateChat(selectedUser.getUsername());
+            chat.addParticipant(selectedUser);
+            chat.addParticipant(user);
             if (!hasChat(chat)) {
                 chatListModel.addElement(chat); // Add the chat to the list
                 switchChat(chat); // Switch to the new chat
@@ -159,9 +175,9 @@ public class ClientGUI {
     }
 
     private void switchChat(Chat chat) {
-        if (!chat.equals(current_chat)) {
+        if (chat != null && !chat.equals(current_chat)) {
             current_chat = chat;
-            chatDisplay.setText("");
+            chatDisplay.setText(chatHistories.getOrDefault(chat, new StringBuilder()).toString());
         }
     }
 
@@ -205,6 +221,10 @@ public class ClientGUI {
         // Refresh any UI components that depend on the list of active users
         // For example, if you have a JList or JComboBox showing active users, update it here
         System.out.println("Active users updated: " + active_users);
+    }
+
+    private StringBuilder getChatHistory(Chat chat) {
+        return chatHistories.get(chat);
     }
 
 }
