@@ -3,7 +3,7 @@ package com.example.server.network;
 import com.example.common.messages.Communication;
 import com.example.common.utils.MessageSerializer;
 import com.example.server.processing.ServerMessageProcessor;
-import com.example.server.processing.MessageProcessorFactory;
+import com.example.server.processing.ServerMessageProcessorFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class ServerHandler implements Runnable {
 
     public void processMessage(String jsonMessage) {
         Communication message = MessageSerializer.deserialize(jsonMessage);
-        ServerMessageProcessor processor = MessageProcessorFactory.getProcessor(message.getType());
+        ServerMessageProcessor processor = ServerMessageProcessorFactory.getProcessor(message.getType());
         processor.processMessage(message, this.server, out);
     }
 }
