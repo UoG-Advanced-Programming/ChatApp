@@ -133,16 +133,42 @@ public class ClientGUI {
         UserSelectionDialog userDialog = new UserSelectionDialog(frame, active_users);
         User selectedUser = userDialog.getSelectedUser();
 
-        // If a user was selected, create a new private chat
+        // If a user was selected, check if a private chat already exists
         if (selectedUser != null) {
+            if (selectedUser.equals(user)) {
+                JOptionPane.showMessageDialog(frame,
+                        "Cannot start a private chat with the same user.",
+                        "Private Chat Unavailable", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            if (hasPrivateChatWith(selectedUser)) {
+                JOptionPane.showMessageDialog(frame,
+                        "A private chat with " + selectedUser.getUsername() + " already exists.",
+                        "Private Chat Exists", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            // Create a new private chat
             PrivateChat chat = new PrivateChat(selectedUser.getUsername());
             chat.addParticipant(selectedUser);
             chat.addParticipant(user);
-            if (!hasChat(chat)) {
-                chatListModel.addElement(chat); // Add the chat to the list
-                switchChat(chat); // Switch to the new chat
+            chatListModel.addElement(chat); // Add the chat to the list
+            switchChat(chat); // Switch to the new chat
+        }
+    }
+
+    public boolean hasPrivateChatWith(User user) {
+        for (int i = 0; i < chatListModel.size(); i++) {
+            Chat chat = chatListModel.getElementAt(i);
+            if (chat instanceof PrivateChat) {
+                PrivateChat privateChat = (PrivateChat) chat;
+                if (privateChat.getParticipants().contains(user) && privateChat.getParticipants().contains(this.user)) {
+                    return true; // A private chat already exists between these users
+                }
             }
         }
+        return false; // No private chat exists between these users
     }
 
     private void startGroupChat() {
@@ -182,7 +208,19 @@ public class ClientGUI {
     }
 
     public boolean hasChat(Chat chat) {
-        return chatListModel.contains(chat);
+        if (chat instanceof PrivateChat) {
+            PrivateChat privateChat = (PrivateChat) chat;
+            for (int i = 0; i < chatListModel.size(); i++) {
+                Chat existingChat = chatListModel.getElementAt(i);
+                if (existingChat instanceof PrivateChat) {
+                    PrivateChat existingPrivateChat = (PrivateChat) existingChat;
+                    if (existingPrivateChat.involvesSameUsers(privateChat)) {
+                        return true; // A private chat already exists between these users
+                    }
+                }
+            }
+        }
+        return chatListModel.contains(chat); // Check for other types of chats
     }
 
     public void addChat(Chat chat) {
