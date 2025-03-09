@@ -10,15 +10,17 @@ public class UserSelectionDialog extends JDialog {
     private final JList<User> userList;
     private boolean confirmed = false;
 
-    public UserSelectionDialog(Frame parent, Set<User> users) {
+    public UserSelectionDialog(Frame parent, Set<User> users, User currentUser) {
         super(parent, "Select User", true);
         setSize(300, 200);
         setLocationRelativeTo(parent);
 
-        // Create a list model and populate it with users
+        // Create a list model and populate it with users (excluding the current user)
         DefaultListModel<User> userListModel = new DefaultListModel<>();
         for (User user : users) {
-            userListModel.addElement(user);
+            if (!user.equals(currentUser)) { // Exclude the current user
+                userListModel.addElement(user);
+            }
         }
 
         // Create a JList with the list model

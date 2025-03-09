@@ -12,7 +12,7 @@ public class GroupChatCreationDialog extends JDialog {
     private final JList<User> userList;
     private boolean confirmed = false;
 
-    public GroupChatCreationDialog(Frame parent, Set<User> users) {
+    public GroupChatCreationDialog(Frame parent, Set<User> users, User currentUser) {
         super(parent, "Create Group Chat", true);
         setSize(400, 300);
         setLocationRelativeTo(parent);
@@ -23,10 +23,12 @@ public class GroupChatCreationDialog extends JDialog {
         chatNameField = new JTextField();
         namePanel.add(chatNameField, BorderLayout.CENTER);
 
-        // Create a list model and populate it with users
+        // Create a list model and populate it with users (excluding the current user)
         DefaultListModel<User> userListModel = new DefaultListModel<>();
         for (User user : users) {
-            userListModel.addElement(user);
+            if (!user.equals(currentUser)) { // Exclude the current user
+                userListModel.addElement(user);
+            }
         }
 
         // Create a JList with the list model
@@ -68,10 +70,25 @@ public class GroupChatCreationDialog extends JDialog {
         if (confirmed) {
             String chatName = chatNameField.getText().trim();
             List<User> selectedUsers = userList.getSelectedValuesList();
-            if (!chatName.isEmpty() && !selectedUsers.isEmpty()) {
-                return new Object[]{chatName, selectedUsers};
+
+            // Validate the chat name
+            if (chatName.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Please provide a name for the group chat.",
+                        "Invalid Chat Name", JOptionPane.ERROR_MESSAGE);
+                return null; // Return null if the chat name is empty
             }
+
+            // Validate the selected users
+            if (selectedUsers.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Please select at least one user for the group chat.",
+                        "No Users Selected", JOptionPane.ERROR_MESSAGE);
+                return null; // Return null if no users are selected
+            }
+
+            return new Object[]{chatName, selectedUsers};
         }
-        return null;
+        return null; // Return null if the dialog was canceled
     }
 }

@@ -38,6 +38,7 @@ public class ChatServer {
 
     public void removeClient(User user) {
         clientWriters.remove(user);
+        generalChat.removeParticipant(user);
 
         // Notify all clients about the user leaving
         broadcast(new UserUpdateMessage(user, UserStatus.OFFLINE));

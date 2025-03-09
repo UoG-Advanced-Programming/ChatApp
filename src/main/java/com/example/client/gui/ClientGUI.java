@@ -5,10 +5,14 @@ import com.example.common.chats.Chat;
 import com.example.common.chats.GroupChat;
 import com.example.common.chats.PrivateChat;
 import com.example.common.messages.TextMessage;
+import com.example.common.messages.UserStatus;
+import com.example.common.messages.UserUpdateMessage;
 import com.example.common.users.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +37,14 @@ public class ClientGUI {
         frame.setSize(600, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+
+        // A window listener to handle client exit
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                handleClientExit();
+            }
+        });
 
         // Control Panel (Top)
         JPanel controlPanel = getJPanel();
@@ -96,6 +108,13 @@ public class ClientGUI {
     }
 
     private void sendMessage(Chat chat, JTextField messageField) {
+        if (chat instanceof PrivateChat && !((PrivateChat) chat).isActive()) {
+            JOptionPane.showMessageDialog(frame,
+                    "This private chat is no longer active.",
+                    "Inactive Chat", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String messageText = messageField.getText().trim();
         messageField.setText("");
         if (!messageText.isEmpty()) {
@@ -130,18 +149,11 @@ public class ClientGUI {
         }
 
         // Show the user selection dialog
-        UserSelectionDialog userDialog = new UserSelectionDialog(frame, active_users);
+        UserSelectionDialog userDialog = new UserSelectionDialog(frame, active_users, user);
         User selectedUser = userDialog.getSelectedUser();
 
         // If a user was selected, check if a private chat already exists
         if (selectedUser != null) {
-            if (selectedUser.equals(user)) {
-                JOptionPane.showMessageDialog(frame,
-                        "Cannot start a private chat with the same user.",
-                        "Private Chat Unavailable", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-
             if (hasPrivateChatWith(selectedUser)) {
                 JOptionPane.showMessageDialog(frame,
                         "A private chat with " + selectedUser.getUsername() + " already exists.",
@@ -180,7 +192,7 @@ public class ClientGUI {
         }
 
         // Show the group chat creation dialog
-        GroupChatCreationDialog groupChatDialog = new GroupChatCreationDialog(frame, active_users);
+        GroupChatCreationDialog groupChatDialog = new GroupChatCreationDialog(frame, active_users, user);
         Object[] groupChatDetails = groupChatDialog.getGroupChatDetails();
 
         // If the user provided valid details, create a new group chat
@@ -189,6 +201,7 @@ public class ClientGUI {
             List<User> selectedUsers = (List<User>) groupChatDetails[1];
 
             GroupChat chat = new GroupChat(chatName);
+            chat.addParticipant(user); // Add the current user to the group chat
             for (User user : selectedUsers) {
                 chat.addParticipant(user); // Add selected users to the chat
             }
@@ -205,6 +218,8 @@ public class ClientGUI {
             current_chat = chat;
             chatDisplay.setText(chatHistories.getOrDefault(chat, new StringBuilder()).toString());
         }
+
+        chatList.repaint();
     }
 
     public boolean hasChat(Chat chat) {
@@ -233,7 +248,6 @@ public class ClientGUI {
     public void addActiveUser(User user) {
         if (!active_users.contains(user)) {
             active_users.add(user);
-            refreshUserList(); // Refresh the UI if necessary
 
             // Iterate through the chat list to find the "General Chat"
             for (int i = 0; i < chatListModel.size(); i++) {
@@ -252,17 +266,41 @@ public class ClientGUI {
 
     public void removeActiveUser(User user) {
         active_users.remove(user);
-        refreshUserList(); // Refresh the UI if necessary
-    }
-
-    private void refreshUserList() {
-        // Refresh any UI components that depend on the list of active users
-        // For example, if you have a JList or JComboBox showing active users, update it here
-        System.out.println("Active users updated: " + active_users);
     }
 
     private StringBuilder getChatHistory(Chat chat) {
         return chatHistories.get(chat);
     }
 
+    private void handleClientExit() {
+        // Notify the server that the user is going offline
+        UserUpdateMessage userUpdateMessage = new UserUpdateMessage(user, UserStatus.OFFLINE);
+        client.send(userUpdateMessage);
+
+        // Close the network connection
+        client.disconnect();
+
+        System.out.println("You have left the chat.");
+    }
+
+    public void handleUserDeparture(User user) {
+        // Remove the user from all group chats
+        for (int i = 0; i < chatListModel.size(); i++) {
+            Chat chat = chatListModel.getElementAt(i);
+            if (chat instanceof GroupChat groupChat) {
+                if (groupChat.getParticipants().contains(user)) {
+                    groupChat.removeParticipant(user); // Remove the user from the group chat
+                    chatListModel.set(i, groupChat); // Update the chat in the list
+                }
+            } else if (chat instanceof PrivateChat privateChat) {
+                if (privateChat.getParticipants().contains(user)) {
+                    privateChat.setActive(false); // Mark the private chat as inactive
+                    chatListModel.set(i, privateChat); // Update the chat in the list
+                }
+            }
+        }
+
+        // Remove the user from the active_users list
+        removeActiveUser(user);
+    }
 }

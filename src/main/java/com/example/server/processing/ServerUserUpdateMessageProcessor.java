@@ -12,8 +12,11 @@ public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
     public void processMessage(Communication message, ChatServer server, PrintWriter out) {
         UserUpdateMessage userUpdateMessage = (UserUpdateMessage) message;
         System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
+
         if (userUpdateMessage.getStatus().equals(UserStatus.ONLINE)) {
             server.addClient(userUpdateMessage.getUser(), out);
+        } else {
+            server.removeClient(userUpdateMessage.getUser());
         }
     }
 }
