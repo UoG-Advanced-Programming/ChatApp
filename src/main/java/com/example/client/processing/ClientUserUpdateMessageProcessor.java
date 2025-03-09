@@ -15,7 +15,7 @@ public class ClientUserUpdateMessageProcessor extends ClientMessageProcessor {
         if (userUpdateMessage.getStatus() == UserStatus.ONLINE) {
             gui.addActiveUser(userUpdateMessage.getUser());
         } else if (userUpdateMessage.getStatus() == UserStatus.OFFLINE) {
-            gui.removeActiveUser(userUpdateMessage.getUser());
+            gui.handleUserDeparture(userUpdateMessage.getUser());
         }
     }
 }
