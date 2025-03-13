@@ -173,8 +173,7 @@ public class ClientGUI {
     public boolean hasPrivateChatWith(User user) {
         for (int i = 0; i < chatListModel.size(); i++) {
             Chat chat = chatListModel.getElementAt(i);
-            if (chat instanceof PrivateChat) {
-                PrivateChat privateChat = (PrivateChat) chat;
+            if (chat instanceof PrivateChat privateChat) {
                 if (privateChat.getParticipants().contains(user) && privateChat.getParticipants().contains(this.user)) {
                     return true; // A private chat already exists between these users
                 }
@@ -223,12 +222,10 @@ public class ClientGUI {
     }
 
     public boolean hasChat(Chat chat) {
-        if (chat instanceof PrivateChat) {
-            PrivateChat privateChat = (PrivateChat) chat;
+        if (chat instanceof PrivateChat privateChat) {
             for (int i = 0; i < chatListModel.size(); i++) {
                 Chat existingChat = chatListModel.getElementAt(i);
-                if (existingChat instanceof PrivateChat) {
-                    PrivateChat existingPrivateChat = (PrivateChat) existingChat;
+                if (existingChat instanceof PrivateChat existingPrivateChat) {
                     if (existingPrivateChat.involvesSameUsers(privateChat)) {
                         return true; // A private chat already exists between these users
                     }
