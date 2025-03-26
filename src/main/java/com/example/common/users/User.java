@@ -9,12 +9,14 @@ public class User {
     private String id;
     private String username;
     private LocalDateTime createdAt;
+    private boolean isCoordinator;
 
     // Constructor
     public User(String username) {
         this.id = IDGenerator.generateUUID();
         this.username = username;
         this.createdAt = LocalDateTime.now();
+        this.isCoordinator = false;
     }
 
     // Getters and Setters
@@ -26,6 +28,9 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean getIsCoordinator() { return isCoordinator; }
+    public void setIsCoordinator(boolean isCoordinator) { this.isCoordinator = isCoordinator; }
 
     @Override
     public boolean equals(Object o) {
