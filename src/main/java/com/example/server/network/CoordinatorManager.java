@@ -1,23 +1,20 @@
 package com.example.server.network;
 
-import com.example.common.messages.SystemMessage;
-import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
-
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import com.example.server.network.ChatServer;
 
 public class CoordinatorManager {
-    private final Map<User, PrintWriter> clientWriters;
+    private final ChatServer chatServer;
     private User coordinator = null;
 
-    public CoordinatorManager(Map<User, PrintWriter> clientWriters) {
-        this.clientWriters = clientWriters;
+    public CoordinatorManager(ChatServer chatServer) {
+        this.chatServer = chatServer;
     }
 
+    /**
+     * Assigns a coordinator if one doesn't exist yet.
+     * @param user The user to potentially assign as coordinator
+     */
     public void assignCoordinator(User user) {
         if (coordinator == null) {
             // First user becomes coordinator
@@ -27,7 +24,12 @@ public class CoordinatorManager {
         }
     }
 
-    public boolean reassignCoordinator(User departingUser) {
+    /**
+     * Reassigns the coordinator when the current one leaves
+     * @param departingUser The user who is leaving, if they were the coordinator
+     * @return True if a reassignment was needed and done
+     */
+    public void reassignCoordinator(User departingUser) {
         // Check if this was the coordinator
         boolean wasCoordinator = (coordinator != null && coordinator.getId().equals(departingUser.getId()));
 
@@ -35,28 +37,25 @@ public class CoordinatorManager {
             System.out.println("COORDINATOR: " + departingUser.getUsername() + " (coordinator) has left the chat");
             coordinator = null;
 
-            // Get all online users
-            List<User> onlineUsers = new ArrayList<>(clientWriters.keySet());
+            // Ask the server to select a random user as coordinator
+            User newCoordinator = chatServer.selectRandomUser();
 
-            if (!onlineUsers.isEmpty()) {
-                // Choose a random user from the remaining online users
-                Random random = new Random();
-                User newCoordinator = onlineUsers.get(random.nextInt(onlineUsers.size()));
-
+            if (newCoordinator != null) {
                 // Set the new user as coordinator
                 setCoordinator(newCoordinator);
-
                 System.out.println("COORDINATOR: " + newCoordinator.getUsername() +
                         " has been randomly assigned as the new coordinator");
-                return true;
             } else {
                 System.out.println("COORDINATOR: No users left to assign as coordinator");
             }
         }
 
-        return false;
     }
 
+    /**
+     * Sets a specific user as the coordinator
+     * @param newCoordinator The user to set as coordinator
+     */
     public void setCoordinator(User newCoordinator) {
         if (newCoordinator != null) {
             // First, reset any existing coordinator
@@ -71,6 +70,10 @@ public class CoordinatorManager {
         }
     }
 
+    /**
+     * Gets the current coordinator
+     * @return The current coordinator user or null if none exists
+     */
     public User getCoordinator() {
         return coordinator;
     }
