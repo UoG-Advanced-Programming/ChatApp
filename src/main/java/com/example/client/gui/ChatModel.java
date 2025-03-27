@@ -10,6 +10,7 @@ import java.util.*;
 public class ChatModel {
     private final User currentUser;
     private Chat currentChat;
+    private String lastRetrievedIP = null;
     private final Set<User> activeUsers = new HashSet<>();
     private final List<Chat> chatList = new ArrayList<>();
     private final Map<Chat, StringBuilder> history = new HashMap<>();
@@ -91,6 +92,14 @@ public class ChatModel {
         if (hasActiveUser(user)) {
             activeUsers.remove(user);
         }
+    }
+
+    public String getLastRetrievedIP() {
+        return lastRetrievedIP;
+    }
+
+    public void setLastRetrievedIP(String lastRetrievedIP) {
+        this.lastRetrievedIP = lastRetrievedIP;
     }
 
     public Set<User> getActiveUsers() {
