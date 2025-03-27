@@ -12,5 +12,10 @@ public class ClientSystemMessageProcessor extends ClientMessageProcessor {
         if (systemMessage.getSystemType().equals(SystemMessageType.ID_TRANSITION)) {
             controller.getGeneralChat().setId(systemMessage.getContent());
         }
+
+        if (systemMessage.getSystemType().equals(SystemMessageType.IP_TRANSITION)) {
+            String ip = systemMessage.getContent();
+            controller.setIP(ip);
+        }
     }
 }
