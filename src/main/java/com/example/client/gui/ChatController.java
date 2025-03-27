@@ -34,6 +34,7 @@ public class ChatController {
         this.view.setGroupPrivateChatButtonListener(new GroupChatButtonListener());
         this.view.setSendButtonListener(new SendButtonListener());
         this.view.setChatListListener(new ChatListListener());
+        this.view.setGetDetailsButtonListener(new GetDetailsButtonListener());
     }
 
 
@@ -202,6 +203,24 @@ public class ChatController {
                 view.getChatDisplay().setText(model.getFormattedChatHistory(chat));
             }
             view.getChatList().repaint();
+        }
+    }
+
+    private class GetDetailsButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            User selectedUser = view.getActiveUsersList().getSelectedValue();
+            if (selectedUser != null) {
+                view.showMessageDialog(
+                        "Username: " + selectedUser.getUsername(),
+                        "User Details"
+                );
+            } else {
+                view.showWarningDialog(
+                        "Please select a user first!",
+                        "Warning"
+                );
+            }
         }
     }
 }
