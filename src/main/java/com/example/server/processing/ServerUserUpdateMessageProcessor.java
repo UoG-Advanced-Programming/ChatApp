@@ -20,8 +20,7 @@ public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
         CoordinatorManager coordinatorManager = server.getCoordinatorManager();
 
         if (userUpdateMessage.getStatus().equals(UserStatus.ONLINE)) {
-            server.addClient(userUpdateMessage.getUser(), out, handler);
-            // First add the client
+            // Add the client just once
             server.addClient(user, out, handler);
 
             // Then try to assign as coordinator if needed
