@@ -5,11 +5,9 @@ import com.example.common.messages.UserStatus;
 import com.example.common.messages.UserUpdateMessage;
 import com.example.common.users.User;
 import com.example.server.network.ChatServer;
+import com.example.server.network.CoordinatorManager;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
     @Override
@@ -18,45 +16,26 @@ public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
         System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
 
         User user = userUpdateMessage.getUser();
+        CoordinatorManager coordinatorManager = server.getCoordinatorManager();
 
         if (userUpdateMessage.getStatus().equals(UserStatus.ONLINE)) {
-            // Check if there's no coordinator yet
-            if (server.getCoordinator() == null) {
-                // First user becomes coordinator
-                user.setIsCoordinator(true);
-                System.out.println("COORDINATOR: " + user.getUsername() + " has been assigned as the coordinator (first user)");
-            }
-
+            // First add the client
             server.addClient(user, out);
-        } else {
-            // Store whether this user was the coordinator before removal
-            boolean wasCoordinator = (server.getCoordinator() != null &&
-                    server.getCoordinator().getId().equals(user.getId()));
 
-            // Remove the user
+            // Then try to assign as coordinator if needed
+            coordinatorManager.assignCoordinator(user);
+        } else {
+            // First check if this user is the coordinator
+            boolean needReassignment = coordinatorManager.getCoordinator() != null &&
+                    coordinatorManager.getCoordinator().getId().equals(user.getId());
+
+            // Remove the client
             server.removeClient(user);
 
-            // If the user was coordinator, reassign a new one
-            if (wasCoordinator) {
-                reassignCoordinator(server);
+            // Now reassign coordinator if needed
+            if (needReassignment) {
+                coordinatorManager.reassignCoordinator(user);
             }
-        }
-    }
-
-    private void reassignCoordinator(ChatServer server) {
-        // Get all online users
-        List<User> onlineUsers = new ArrayList<>(server.getClientWriters().keySet());
-
-        if (!onlineUsers.isEmpty()) {
-            // Choose a random user from the remaining online users
-            Random random = new Random();
-            User newCoordinator = onlineUsers.get(random.nextInt(onlineUsers.size()));
-
-            // Set the new user as coordinator
-            server.setCoordinator(newCoordinator);
-            System.out.println("COORDINATOR: " + newCoordinator.getUsername() + " has been randomly assigned as the new coordinator");
-        } else {
-            System.out.println("COORDINATOR: No users left to assign as coordinator");
         }
     }
 }

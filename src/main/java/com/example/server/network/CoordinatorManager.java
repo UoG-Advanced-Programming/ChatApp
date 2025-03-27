@@ -1,94 +1,77 @@
 package com.example.server.network;
 
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
+import com.example.common.messages.SystemMessage;
+import com.example.common.messages.SystemMessageType;
+import com.example.common.users.User;
+
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class CoordinatorManager {
-    private String coordinator = null;
-    private Set<PrintWriter> writers;
-    private Map<PrintWriter, String> writerToNameMap = new HashMap<>();
-    private Map<String, String> nameToIPMap = new HashMap<>();
-    private Set<String> names;
+    private final Map<User, PrintWriter> clientWriters;
+    private User coordinator = null;
 
-    public CoordinatorManager(Set<PrintWriter> writers, Set<String> names) {
-        this.writers = writers;
-        this.names = names;
+    public CoordinatorManager(Map<User, PrintWriter> clientWriters) {
+        this.clientWriters = clientWriters;
     }
 
-    public synchronized void assignCoordinator(String name, PrintWriter writer, String ip) {
-        writerToNameMap.put(writer, name);
-        nameToIPMap.put(name, ip);
-
+    public void assignCoordinator(User user) {
         if (coordinator == null) {
-            coordinator = name;
-            announceCoordinator();
+            // First user becomes coordinator
+            coordinator = user;
+            user.setIsCoordinator(true);
+            System.out.println("COORDINATOR: " + user.getUsername() + " has been assigned as the coordinator (first user)");
         }
     }
 
-    public synchronized String getCoordinator() {
-        return coordinator;
-    }
+    public boolean reassignCoordinator(User departingUser) {
+        // Check if this was the coordinator
+        boolean wasCoordinator = (coordinator != null && coordinator.getId().equals(departingUser.getId()));
 
-    public synchronized void reassignCoordinator(String leavingName) {
-        if (coordinator != null && coordinator.equals(leavingName)) {
+        if (wasCoordinator) {
+            System.out.println("COORDINATOR: " + departingUser.getUsername() + " (coordinator) has left the chat");
             coordinator = null;
-            nameToIPMap.remove(leavingName);
 
-            if (!names.isEmpty()) {
-                String[] nameArray = names.toArray(new String[0]);
-                coordinator = nameArray[new Random().nextInt(nameArray.length)];
-                announceCoordinator();
+            // Get all online users
+            List<User> onlineUsers = new ArrayList<>(clientWriters.keySet());
+
+            if (!onlineUsers.isEmpty()) {
+                // Choose a random user from the remaining online users
+                Random random = new Random();
+                User newCoordinator = onlineUsers.get(random.nextInt(onlineUsers.size()));
+
+                // Set the new user as coordinator
+                setCoordinator(newCoordinator);
+
+                System.out.println("COORDINATOR: " + newCoordinator.getUsername() +
+                        " has been randomly assigned as the new coordinator");
+                return true;
+            } else {
+                System.out.println("COORDINATOR: No users left to assign as coordinator");
             }
         }
+
+        return false;
     }
 
-    private void announceCoordinator() {
-        for (PrintWriter writer : writers) {
-            writer.println("COORDINATOR " + coordinator);
-        }
-        System.out.println("New coordinator assigned: " + coordinator);
-    }
-
-    public synchronized void removeUser(PrintWriter writer) {
-        String userName = writerToNameMap.remove(writer);
-        if (userName != null) {
-            nameToIPMap.remove(userName);
-        }
-    }
-
-    public synchronized void requestDetails(String requesterName, String targetName, PrintWriter requesterWriter) {
-        if (!names.contains(targetName)) {
-            requesterWriter.println("MESSAGE User " + targetName + " not found.");
-            return;
-        }
-
-        // Notify the coordinator about the request
-        for (PrintWriter writer : writers) {
-            String coordinatorName = writerToNameMap.get(writer);
-            if (coordinatorName != null && coordinatorName.equals(coordinator)) {
-                writer.println("MESSAGE Coordinator: " + requesterName + " is requesting details for " + targetName + ".");
-                writer.println("MESSAGE Type 'APPROVE " + requesterName + " " + targetName + "' to approve or 'DENY " + requesterName + " " + targetName + "' to deny.");
-                return;
+    public void setCoordinator(User newCoordinator) {
+        if (newCoordinator != null) {
+            // First, reset any existing coordinator
+            if (coordinator != null) {
+                coordinator.setIsCoordinator(false);
             }
+
+            // Set the new coordinator
+            coordinator = newCoordinator;
+            coordinator.setIsCoordinator(true);
+            System.out.println("COORDINATOR: " + coordinator.getUsername() + " is now the coordinator");
         }
     }
 
-    public synchronized void handleDetailsResponse(String requesterName, String targetName, boolean approved) {
-        for (PrintWriter writer : writers) {
-            String userName = writerToNameMap.get(writer);
-            if (userName != null && userName.equals(requesterName)) {
-                if (approved) {
-                    String targetIP = nameToIPMap.get(targetName);
-                    String coordinatorName = getCoordinator();
-                    writer.println("MESSAGE Details for " + targetName + ": IP=" + targetIP + ", Name=" + targetName + ", Coordinator=" + coordinatorName);
-                } else {
-                    writer.println("MESSAGE Your request for " + targetName + "'s details was denied.");
-                }
-                return;
-            }
-        }
+    public User getCoordinator() {
+        return coordinator;
     }
 }

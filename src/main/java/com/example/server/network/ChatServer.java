@@ -14,7 +14,12 @@ import java.util.concurrent.*;
 public class ChatServer {
     private final GroupChat generalChat = new GroupChat("General Chat");
     private final Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>();
-    private User coordinator = null; // Track the current coordinator
+    private final CoordinatorManager coordinatorManager;
+
+    public ChatServer() {
+        // Initialize the coordinator manager with the client writers
+        this.coordinatorManager = new CoordinatorManager(clientWriters);
+    }
 
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");
@@ -35,29 +40,14 @@ public class ChatServer {
 
         // Notify all clients about the new user
         broadcast(new UserUpdateMessage(user, UserStatus.ONLINE));
-
-        // Log coordinator status if applicable
-        if (user.getIsCoordinator()) {
-            coordinator = user;
-            System.out.println("COORDINATOR: " + user.getUsername() + " has joined as coordinator");
-        }
     }
 
     public void removeClient(User user) {
         clientWriters.remove(user);
         generalChat.removeParticipant(user);
 
-        // Check if this was the coordinator
-        boolean wasCoordinator = (coordinator != null && coordinator.getId().equals(user.getId()));
-
         // Notify all clients about the user leaving
         broadcast(new UserUpdateMessage(user, UserStatus.OFFLINE));
-
-        // If the coordinator left, set the field to null
-        if (wasCoordinator) {
-            System.out.println("COORDINATOR: " + user.getUsername() + " (coordinator) has left the chat");
-            coordinator = null;
-        }
     }
 
     public PrintWriter getClient(User user) {
@@ -69,22 +59,12 @@ public class ChatServer {
         return clientWriters;
     }
 
-    public User getCoordinator() {
-        return coordinator;
+    public CoordinatorManager getCoordinatorManager() {
+        return coordinatorManager;
     }
 
-    public void setCoordinator(User newCoordinator) {
-        if (newCoordinator != null) {
-            // First, reset any existing coordinator
-            if (coordinator != null) {
-                coordinator.setIsCoordinator(false);
-            }
-
-            // Set the new coordinator
-            coordinator = newCoordinator;
-            coordinator.setIsCoordinator(true);
-            System.out.println("COORDINATOR: " + coordinator.getUsername() + " is now the coordinator");
-        }
+    public User getCoordinator() {
+        return coordinatorManager.getCoordinator();
     }
 
     public void broadcast(Communication message) {
