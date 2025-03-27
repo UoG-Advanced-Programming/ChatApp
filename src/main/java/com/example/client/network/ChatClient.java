@@ -24,7 +24,7 @@ public class ChatClient {
         connectToServer();
     }
 
-    private void connectToServer() {
+    protected void connectToServer() {  // Protected for testing
         try {
             this.socket = new Socket(host, port);
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -34,6 +34,7 @@ public class ChatClient {
             System.err.println("Error connecting to the server: " + e.getMessage());
         }
     }
+
     public void start() {
         String username = promptForCredentials();
         assert username != null;
@@ -54,7 +55,7 @@ public class ChatClient {
         }
     }
 
-    private String promptForCredentials() {
+    protected String promptForCredentials() {  // Protected for testing
         JPanel panel = new JPanel(new GridLayout(2, 1, 5, 5)); // Neat layout with spacing
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -103,6 +104,31 @@ public class ChatClient {
         } catch (IOException e) {
             System.err.println("Error disconnecting: " + e.getMessage());
         }
+    }
+
+    // Getter and setter methods for testing purposes
+    public PrintWriter getOut() {
+        return out;
+    }
+
+    public void setOut(PrintWriter out) {
+        this.out = out;
+    }
+
+    public BufferedReader getIn() {
+        return in;
+    }
+
+    public void setIn(BufferedReader in) {
+        this.in = in;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 
     public static void main(String[] args) {

@@ -1,7 +1,6 @@
 package com.example.server.network;
 
 import com.example.common.users.User;
-import com.example.server.network.ChatServer;
 
 public class CoordinatorManager {
     private final ChatServer chatServer;
@@ -20,14 +19,13 @@ public class CoordinatorManager {
             // First user becomes coordinator
             coordinator = user;
             user.setIsCoordinator(true);
-            System.out.println("COORDINATOR: " + user.getUsername() + " has been assigned as the coordinator (first user)");
+            System.out.println("COORDINATOR: " + user.getUsername() + " has been assigned as the coordinator");
         }
     }
 
     /**
      * Reassigns the coordinator when the current one leaves
      * @param departingUser The user who is leaving, if they were the coordinator
-     * @return True if a reassignment was needed and done
      */
     public void reassignCoordinator(User departingUser) {
         // Check if this was the coordinator
@@ -35,10 +33,13 @@ public class CoordinatorManager {
 
         if (wasCoordinator) {
             System.out.println("COORDINATOR: " + departingUser.getUsername() + " (coordinator) has left the chat");
+
+            // Reset the coordinator flag first
+            departingUser.setIsCoordinator(false);
             coordinator = null;
 
-            // Ask the server to select a random user as coordinator
-            User newCoordinator = chatServer.selectRandomUser();
+            // Ask the server to select a random user as coordinator, excluding the departing user
+            User newCoordinator = chatServer.selectRandomUser(departingUser);
 
             if (newCoordinator != null) {
                 // Set the new user as coordinator
@@ -49,7 +50,6 @@ public class CoordinatorManager {
                 System.out.println("COORDINATOR: No users left to assign as coordinator");
             }
         }
-
     }
 
     /**

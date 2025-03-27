@@ -40,6 +40,10 @@ public class ChatServer {
         // Notify all clients about the new user
         broadcast(new UserUpdateMessage(user, UserStatus.ONLINE));
         clientWriters.put(user, writer);
+
+        // Assign user as coordinator if needed
+        coordinatorManager.assignCoordinator(user);
+
         send(user, new SystemMessage(SystemMessageType.ID_TRANSITION, GENERAL_CHAT_ID));
         for (User activeUser : clientWriters.keySet()) {
             send(user, new UserUpdateMessage(activeUser, UserStatus.ONLINE));
@@ -47,7 +51,11 @@ public class ChatServer {
     }
 
     public void removeClient(User user) {
+        // First remove the client from the map BEFORE reassigning the coordinator
         clientWriters.remove(user);
+
+        // Then handle coordinator reassignment if the user was the coordinator
+        coordinatorManager.reassignCoordinator(user);
 
         // Notify all clients about the user leaving
         broadcast(new UserUpdateMessage(user, UserStatus.OFFLINE));
@@ -59,11 +67,17 @@ public class ChatServer {
 
     /**
      * Selects a random user from the currently connected clients.
+     * @param excludeUser User to exclude from selection (can be null)
      * @return A randomly selected user, or null if no users are available
      */
-    public User selectRandomUser() {
+    public User selectRandomUser(User excludeUser) {
         // Get all online users
         List<User> onlineUsers = new ArrayList<>(clientWriters.keySet());
+
+        // Remove the excluded user from consideration if provided
+        if (excludeUser != null) {
+            onlineUsers.remove(excludeUser);
+        }
 
         if (!onlineUsers.isEmpty()) {
             // Choose a random user from the online users
@@ -73,6 +87,11 @@ public class ChatServer {
             // Return null without logging - CoordinatorManager will handle messaging
             return null;
         }
+    }
+
+    // Overloaded method for backward compatibility
+    public User selectRandomUser() {
+        return selectRandomUser(null);
     }
 
     // Expose the client writers map for coordinator management
