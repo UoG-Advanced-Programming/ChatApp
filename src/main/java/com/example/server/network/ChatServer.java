@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class ChatServer {
-    private final GroupChat generalChat = new GroupChat("General Chat");
     private final Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>();
+    private static final String GENERAL_CHAT_ID = "general-chat"; // Fixed ID for the general chat
 
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");
@@ -28,17 +28,17 @@ public class ChatServer {
     }
 
     public void addClient(User user, PrintWriter writer) {
-        clientWriters.put(user, writer);
-        generalChat.addParticipant(user);
-        send(user, new SystemMessage(SystemMessageType.CHAT_INIT,  generalChat));
-
         // Notify all clients about the new user
         broadcast(new UserUpdateMessage(user, UserStatus.ONLINE));
+        clientWriters.put(user, writer);
+        send(user, new SystemMessage(SystemMessageType.ID_TRANSITION, GENERAL_CHAT_ID));
+        for (User activeUser : clientWriters.keySet()) {
+            send(user, new UserUpdateMessage(activeUser, UserStatus.ONLINE));
+        }
     }
 
     public void removeClient(User user) {
         clientWriters.remove(user);
-        generalChat.removeParticipant(user);
 
         // Notify all clients about the user leaving
         broadcast(new UserUpdateMessage(user, UserStatus.OFFLINE));
