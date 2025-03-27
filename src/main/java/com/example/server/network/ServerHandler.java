@@ -32,6 +32,17 @@ public class ServerHandler implements Runnable {
         }
     }
 
+    /**
+     * Returns the IP address of the connected client.
+     * @return String representation of the client's IP address
+     */
+    public String getClientIpAddress() {
+        if (socket != null && socket.getInetAddress() != null) {
+            return socket.getInetAddress().getHostAddress();
+        }
+        return "Unknown";
+    }
+
     public void run() {
         try {
             String message;
@@ -53,6 +64,6 @@ public class ServerHandler implements Runnable {
     public void processMessage(String jsonMessage) {
         Communication message = MessageSerializer.deserialize(jsonMessage);
         ServerMessageProcessor processor = ServerMessageProcessorFactory.getProcessor(message.getType());
-        processor.processMessage(message, this.server, out);
+        processor.processMessage(message, this.server, out, this);
     }
 }
