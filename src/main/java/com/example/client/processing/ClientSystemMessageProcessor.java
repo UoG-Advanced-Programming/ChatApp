@@ -1,34 +1,16 @@
 package com.example.client.processing;
 
-import com.example.client.gui.ClientGUI;
-import com.example.common.chats.Chat;
-import com.example.common.chats.GroupChat;
+import com.example.client.gui.ChatController;
 import com.example.common.messages.Communication;
 import com.example.common.messages.SystemMessage;
-import com.example.common.users.User;
-
-import javax.swing.*;
-import java.util.Set;
+import com.example.common.messages.SystemMessageType;
 
 public class ClientSystemMessageProcessor extends ClientMessageProcessor {
     @Override
-    public void processMessage(Communication message, ClientGUI gui) {
+    public void processMessage(Communication message, ChatController controller) {
         SystemMessage systemMessage = (SystemMessage) message;
-        Chat chat = systemMessage.getChat();
-        SwingUtilities.invokeLater(() -> {
-            if (!gui.hasChat(chat)) {
-                gui.addChat(chat);
-            }
-        });
-
-        // If the chat is the General Chat, add its participants to the active_users list
-        if (chat instanceof GroupChat && chat.getName().equals("General Chat")) {
-            Set<User> participants = chat.getParticipants();
-            SwingUtilities.invokeLater(() -> {
-                for (User participant : participants) {
-                    gui.addActiveUser(participant); // Add each participant to the active_users list
-                }
-            });
+        if (systemMessage.getSystemType().equals(SystemMessageType.ID_TRANSITION)) {
+            controller.getGeneralChat().setId(systemMessage.getContent());
         }
     }
 }

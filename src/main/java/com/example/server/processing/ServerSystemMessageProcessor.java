@@ -10,6 +10,5 @@ public class ServerSystemMessageProcessor extends ServerMessageProcessor {
     @Override
     public void processMessage(Communication message, ChatServer server, PrintWriter out) {
         SystemMessage systemMessage = (SystemMessage) message;
-        System.out.println("System Notification: " + systemMessage.getChat());
     }
 }
