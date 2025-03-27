@@ -4,11 +4,11 @@ import com.example.client.network.ChatClient;
 import com.example.common.chats.Chat;
 import com.example.common.chats.GroupChat;
 import com.example.common.chats.PrivateChat;
-import com.example.common.messages.TextMessage;
-import com.example.common.messages.UserStatus;
-import com.example.common.messages.UserUpdateMessage;
+import com.example.common.messages.*;
 import com.example.common.users.User;
+import com.google.gson.JsonObject;
 
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.*;
@@ -34,8 +34,12 @@ public class ChatController {
         this.view.setGroupPrivateChatButtonListener(new GroupChatButtonListener());
         this.view.setSendButtonListener(new SendButtonListener());
         this.view.setChatListListener(new ChatListListener());
+        this.view.setGetDetailsButtonListener(new GetDetailsButtonListener());
     }
 
+    public void setIP(String ip) {
+        model.setLastRetrievedIP(ip); // Store the received IP
+    }
 
     public boolean hasChat(Chat chat) {return model.hasChat(chat);}
 
@@ -100,6 +104,8 @@ public class ChatController {
         model.addChat(generalChat);
         model.setCurrentChat(generalChat);
         view.addChat(generalChat);
+        // Select the general chat in the chat list
+        view.getChatList().setSelectedValue(generalChat, true);
     }
 
     // Inner classes for handling events
@@ -204,4 +210,55 @@ public class ChatController {
             view.getChatList().repaint();
         }
     }
+
+    private class GetDetailsButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            User selectedUser = view.getActiveUsersList().getSelectedValue();
+            if (selectedUser != null) {
+                model.setLastRetrievedIP(null); // Reset before request
+                JsonObject json = new JsonObject();
+                json.addProperty("senderId", model.getCurrentUser().getId());
+                json.addProperty("selectedUserId", selectedUser.getId());
+                SystemMessage request = new SystemMessage(SystemMessageType.IP_REQUEST, json.toString());
+                client.send(request);
+
+                // Use SwingWorker to wait for the IP without freezing the UI
+                new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        int timeout = 5000; // 5 seconds timeout
+                        int waited = 0;
+                        while (model.getLastRetrievedIP() == null && waited < timeout) {
+                            Thread.sleep(100); // Wait in small intervals
+                            waited += 100;
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        if (model.getLastRetrievedIP() != null) {
+                            view.showMessageDialog(
+                                    "Username: " + selectedUser.getUsername() + "\nIP Address: " + model.getLastRetrievedIP(),
+                                    "User Details"
+                            );
+                            model.setCurrentChat(null); // Reset after showing
+                        } else {
+                            view.showWarningDialog(
+                                    "IP retrieval timed out. Please try again.",
+                                    "Warning"
+                            );
+                        }
+                    }
+                }.execute();
+            } else {
+                view.showWarningDialog(
+                        "Please select a user first!",
+                        "Warning"
+                );
+            }
+        }
+    }
+
 }

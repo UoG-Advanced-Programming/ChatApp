@@ -25,6 +25,7 @@ public class ChatView {
     private final JButton startPrivateChatButton;
     private final JButton startGroupChatButton;
     private final JButton sendButton;
+    private final JButton getDetailsButton;
 
     public ChatView() {
         frame = new JFrame("Chat Client");
@@ -79,19 +80,11 @@ public class ChatView {
         activeUsersListModel = new DefaultListModel<>();
         activeUsersList = new JList<>(activeUsersListModel);
         activeUsersList.setCellRenderer(new ActiveUserCellRenderer());
-        activeUsersList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int index = activeUsersList.locationToIndex(e.getPoint());
-                if (index != -1) {
-                    User selectedUser = activeUsersListModel.getElementAt(index);
-                    System.out.println("User Details: " + selectedUser.getUsername()); // Action on click
-                }
-            }
-        });
+        getDetailsButton = new JButton("Get Details");
 
         activeUsersPanel.add(new JScrollPane(activeUsersList), BorderLayout.CENTER);
         activeUsersPanel.setBorder(BorderFactory.createTitledBorder("Active Users"));
+        activeUsersPanel.add(getDetailsButton, BorderLayout.SOUTH);
         frame.add(activeUsersPanel, BorderLayout.EAST);
 
         frame.setVisible(true);
@@ -128,6 +121,8 @@ public class ChatView {
 
     public JList<Chat> getChatList() {return chatList;}
 
+    public JList<User> getActiveUsersList() {return activeUsersList;}
+
     public JTextArea getChatDisplay() {return chatDisplay;}
 
     public String getMessageText() {
@@ -148,6 +143,11 @@ public class ChatView {
     // Warning Dialog
     public void showWarningDialog(String message, String title) {
         JOptionPane.showMessageDialog(getFrame(), message, title, JOptionPane.WARNING_MESSAGE);
+    }
+
+    // Message Dialog
+    public void showMessageDialog(String message, String title) {
+        JOptionPane.showMessageDialog(getFrame(), message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Private Chat User Selection Dialog
@@ -186,5 +186,9 @@ public class ChatView {
 
     public void setChatListListener(ListSelectionListener listener) {
         chatList.getSelectionModel().addListSelectionListener(listener);
+    }
+
+    public void setGetDetailsButtonListener(ActionListener listener) {
+        getDetailsButton.addActionListener(listener);
     }
 }
