@@ -1,16 +1,14 @@
 package com.example.common.messages;
 
-import com.example.common.chats.Chat;
-
 public class SystemMessage extends Communication {
     private final SystemMessageType systemType;
-    private final Chat chat;
+    private final String content;
 
     // Constructor for chat initialization
-    public SystemMessage(SystemMessageType systemType, Chat chat) {
+    public SystemMessage(SystemMessageType systemType, String content) {
         super(CommunicationType.SYSTEM);
         this.systemType = systemType;
-        this.chat = chat;
+        this.content = content;
     }
 
     // Getters
@@ -18,7 +16,7 @@ public class SystemMessage extends Communication {
         return systemType;
     }
 
-    public Chat getChat() {
-        return chat;
+    public String getContent() {
+        return content;
     }
 }
