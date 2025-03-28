@@ -100,7 +100,8 @@ public class ChatView {
     }
 
     public void addActiveUser(User activeUser) {
-        activeUsersListModel.addElement(activeUser);
+        System.out.println("Adding active user: " + activeUser.getUsername());
+        SwingUtilities.invokeLater(() -> activeUsersListModel.addElement(activeUser));
     }
 
     public void updateChat(Chat chat) {
