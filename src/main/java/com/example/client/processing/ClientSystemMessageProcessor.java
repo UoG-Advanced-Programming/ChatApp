@@ -13,6 +13,12 @@ public class ClientSystemMessageProcessor extends ClientMessageProcessor {
             controller.getGeneralChat().setId(systemMessage.getContent());
         }
 
+        // Special handling for server shutdown message
+        if (systemMessage.getSystemType().equals(SystemMessageType.SERVER_SHUTDOWN)) {
+            controller.handleServerDisconnect();
+            return;
+        }
+
         if (systemMessage.getSystemType().equals(SystemMessageType.IP_TRANSITION)) {
             String ip = systemMessage.getContent();
             controller.setIP(ip);

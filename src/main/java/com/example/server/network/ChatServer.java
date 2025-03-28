@@ -30,6 +30,10 @@ public class ChatServer {
         System.out.println("The chat server is running...");
         ExecutorService pool = Executors.newFixedThreadPool(500);
         ChatServer server = new ChatServer();
+
+        // Add shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
+
         try (ServerSocket listener = new ServerSocket(7005)) {
             while (true) {
                 Socket socket = listener.accept();
@@ -37,6 +41,23 @@ public class ChatServer {
                 pool.execute(handler);
             }
         }
+    }
+
+    public void shutdown() {
+        System.out.println("Server shutting down...");
+        // Send termination signal to all clients
+        SystemMessage terminationMessage = new SystemMessage(SystemMessageType.SERVER_SHUTDOWN,  null);
+        broadcast(terminationMessage);
+
+        // Give clients a moment to process the message
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("Server terminated.");
+        System.exit(0);
     }
 
     public void addClient(User user, PrintWriter writer, ServerHandler handler) {

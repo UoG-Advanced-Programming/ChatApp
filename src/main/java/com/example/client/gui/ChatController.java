@@ -109,6 +109,16 @@ public class ChatController {
                 .findFirst();
     }
 
+    public void handleServerDisconnect() {
+        SwingUtilities.invokeLater(() -> {
+            view.showErrorDialog("Server connection lost. Application will now close.", "Server Disconnected");
+            // Perform cleanup
+            client.disconnect();
+            // Exit the application
+            System.exit(0);
+        });
+    }
+
     private void updateWindowTitle() {
         String title = "ChatClient - " + model.getCurrentUser().getUsername();
         view.setWindowTitle(title);

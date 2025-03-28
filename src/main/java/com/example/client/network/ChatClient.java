@@ -32,6 +32,7 @@ public class ChatClient {
             System.out.println("Connected to the server at " + host + ":" + port);
         } catch (IOException e) {
             System.err.println("Error connecting to the server: " + e.getMessage());
+            System.exit(1); // Terminate the program
         }
     }
     public void start() {
@@ -107,10 +108,17 @@ public class ChatClient {
 
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.err.println("Pass the server IP as the sole command line argument");
-            return;
+            System.err.println("Pass the server IP as the sole command-line argument");
+            System.exit(1); // Exit if no IP is provided
         }
+
         ChatClient client = new ChatClient(args[0]);
+
+        if (client.socket == null || client.socket.isClosed()) {
+            System.err.println("Failed to connect to the server. Exiting...");
+            System.exit(1); // Exit if the connection is unsuccessful
+        }
+
         client.start();
     }
 }
