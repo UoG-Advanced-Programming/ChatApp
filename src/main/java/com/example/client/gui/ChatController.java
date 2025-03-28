@@ -33,6 +33,7 @@ public class ChatController {
         this.view.setPrivateChatButtonListener(new PrivateChatButtonListener());
         this.view.setGroupPrivateChatButtonListener(new GroupChatButtonListener());
         this.view.setSendButtonListener(new SendButtonListener());
+        this.view.setMessageFieldActionListener(new SendButtonListener());
         this.view.setChatListListener(new ChatListListener());
         this.view.setGetDetailsButtonListener(new GetDetailsButtonListener());
     }

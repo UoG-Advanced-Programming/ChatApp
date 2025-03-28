@@ -191,4 +191,8 @@ public class ChatView {
     public void setGetDetailsButtonListener(ActionListener listener) {
         getDetailsButton.addActionListener(listener);
     }
+
+    public void setMessageFieldActionListener(ActionListener listener) {
+        messageField.addActionListener(listener);
+    }
 }
