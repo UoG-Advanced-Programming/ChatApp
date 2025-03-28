@@ -101,7 +101,6 @@ public class ChatController {
     // Create General Chat
     private void createGeneralChat() {
         generalChat = new GroupChat("General Chat");
-        generalChat.addParticipant(model.getCurrentUser());
         model.addChat(generalChat);
         model.setCurrentChat(generalChat);
         view.addChat(generalChat);
