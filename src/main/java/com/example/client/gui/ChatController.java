@@ -109,6 +109,10 @@ public class ChatController {
                 .findFirst();
     }
 
+    public void recordHeartbeat() {
+        client.recordHeartbeat();
+    }
+
     public void handleServerDisconnect() {
         SwingUtilities.invokeLater(() -> {
             view.showErrorDialog("Server connection lost. Application will now close.", "Server Disconnected");

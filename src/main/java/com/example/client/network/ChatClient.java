@@ -33,9 +33,9 @@ public class ChatClient {
     private void startHeartbeatChecker() {
         heartbeatChecker.scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
-            // If no heartbeat received for more than 30 seconds, assume server is down
-            if (currentTime - lastHeartbeatTime > 30000) {
-                System.err.println("No heartbeat from server for 30 seconds, assuming server is down");
+            // If no heartbeat received for more than 20 seconds, assume server is down
+            if (currentTime - lastHeartbeatTime > 20000) {
+                System.err.println("No heartbeat from server for 20 seconds, assuming server is down");
                 disconnect();
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(

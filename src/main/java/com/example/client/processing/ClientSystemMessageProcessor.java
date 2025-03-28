@@ -31,5 +31,9 @@ public class ClientSystemMessageProcessor extends ClientMessageProcessor {
                 controller.findUserById(id).ifPresent(controller::setCoordinator);
             }
         }
+
+        if (systemMessage.getSystemType().equals(SystemMessageType.HEARTBEAT)) {
+            controller.recordHeartbeat();
+        }
     }
 }
