@@ -13,6 +13,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class ChatController {
     private final ChatModel model;
@@ -92,6 +93,21 @@ public class ChatController {
         return generalChat;
     }
 
+    public void setCoordinator(User user) {
+        model.setCoordinator(user);
+        view.getActiveUsersList().repaint();
+    }
+
+    public User getCoordinator() {
+        return model.getCoordinator();
+    }
+
+    public Optional<User> findUserById(String userId) {
+        // Stream through all connected users and find the one with matching ID
+        return model.getActiveUsers().stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst();
+    }
 
     private void updateWindowTitle() {
         String title = "ChatClient - " + model.getCurrentUser().getUsername();
