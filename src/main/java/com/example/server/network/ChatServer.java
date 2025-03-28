@@ -14,16 +14,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatServer {
     private final Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>();
     private final Map<User, ServerHandler> clientHandlers = new ConcurrentHashMap<>();
     private static final String GENERAL_CHAT_ID = "general-chat"; // Fixed ID for the general chat
     private final CoordinatorManager coordinatorManager;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
     public ChatServer() {
         // Initialize the coordinator manager with reference to this server
         this.coordinatorManager = new CoordinatorManager(this);
+
+        // Start heartbeat scheduler
+        startHeartbeat();
     }
 
     public static void main(String[] args) throws Exception {
@@ -43,7 +49,18 @@ public class ChatServer {
         }
     }
 
+    private void startHeartbeat() {
+        scheduler.scheduleAtFixedRate(() -> {
+            if (isRunning.get()) {
+                SystemMessage heartbeat = new SystemMessage(SystemMessageType.HEARTBEAT, "");
+                broadcast(heartbeat);
+            }
+        }, 0, 10, TimeUnit.SECONDS);
+    }
+
     public void shutdown() {
+        isRunning.set(false);
+        scheduler.shutdown();
         System.out.println("Server shutting down...");
         // Send termination signal to all clients
         SystemMessage terminationMessage = new SystemMessage(SystemMessageType.SERVER_SHUTDOWN,  null);
