@@ -1,14 +1,16 @@
 package com.example.server.network;
 
+import com.example.common.messages.SystemMessage;
+import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
 import com.example.server.network.ChatServer;
 
 public class CoordinatorManager {
-    private final ChatServer chatServer;
+    private final ChatServer server;
     private User coordinator = null;
 
     public CoordinatorManager(ChatServer chatServer) {
-        this.chatServer = chatServer;
+        this.server = chatServer;
     }
 
     /**
@@ -16,38 +18,26 @@ public class CoordinatorManager {
      * @param user The user to potentially assign as coordinator
      */
     public void assignCoordinator(User user) {
-        if (coordinator == null) {
-            // First user becomes coordinator
-            coordinator = user;
-            user.setIsCoordinator(true);
-            System.out.println("COORDINATOR: " + user.getUsername() + " has been assigned as the coordinator (first user)");
-        }
+        setCoordinator(user);
+        SystemMessage systemMessage = new SystemMessage(SystemMessageType.COORDINATOR_ID_TRANSITION, getCoordinator().getId());
+        server.broadcast(systemMessage);
     }
 
     /**
      * Reassigns the coordinator when the current one leaves
-     * @param departingUser The user who is leaving, if they were the coordinator
-     * @return True if a reassignment was needed and done
      */
-    public void reassignCoordinator(User departingUser) {
-        // Check if this was the coordinator
-        boolean wasCoordinator = (coordinator != null && coordinator.getId().equals(departingUser.getId()));
+    public void reassignCoordinator() {
+        // Ask the server to select a random user as coordinator
+        User newCoordinator = server.selectRandomUser();
 
-        if (wasCoordinator) {
-            System.out.println("COORDINATOR: " + departingUser.getUsername() + " (coordinator) has left the chat");
-            coordinator = null;
-
-            // Ask the server to select a random user as coordinator
-            User newCoordinator = chatServer.selectRandomUser();
-
-            if (newCoordinator != null) {
-                // Set the new user as coordinator
-                setCoordinator(newCoordinator);
-                System.out.println("COORDINATOR: " + newCoordinator.getUsername() +
-                        " has been randomly assigned as the new coordinator");
-            } else {
-                System.out.println("COORDINATOR: No users left to assign as coordinator");
-            }
+        if (newCoordinator != null) {
+            // Set the new user as coordinator
+            setCoordinator(newCoordinator);
+            SystemMessage systemMessage = new SystemMessage(SystemMessageType.COORDINATOR_ID_TRANSITION, getCoordinator().getId());
+            server.broadcast(systemMessage);
+        } else {
+            SystemMessage systemMessage = new SystemMessage(SystemMessageType.COORDINATOR_ID_TRANSITION, null);
+            server.broadcast(systemMessage);
         }
 
     }
