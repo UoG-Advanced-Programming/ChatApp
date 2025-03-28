@@ -151,6 +151,11 @@ public class ChatView {
         JOptionPane.showMessageDialog(getFrame(), message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // Error Dialog
+    public void showErrorDialog(String message, String title) {
+        JOptionPane.showMessageDialog(getFrame(), message, title, JOptionPane.ERROR_MESSAGE);
+    }
+
     // Private Chat User Selection Dialog
     public User showPrivateChatUserSelectionDialog(Set<User> activeUsers, User currentUser) {
         UserSelectionDialog userDialog = new UserSelectionDialog(frame, activeUsers, currentUser);
