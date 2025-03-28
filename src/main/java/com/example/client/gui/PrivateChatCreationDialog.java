@@ -6,11 +6,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
 
-public class UserSelectionDialog extends JDialog {
+public class PrivateChatCreationDialog extends JDialog {
     private final JList<User> userList;
     private boolean confirmed = false;
 
-    public UserSelectionDialog(Frame parent, Set<User> users, User currentUser) {
+    public PrivateChatCreationDialog(Frame parent, Set<User> users, User currentUser) {
         super(parent, "Select User", true);
         setSize(300, 200);
         setLocationRelativeTo(parent);

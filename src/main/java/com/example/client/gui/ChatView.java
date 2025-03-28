@@ -7,8 +7,6 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 import java.util.Set;
 
@@ -158,7 +156,7 @@ public class ChatView {
 
     // Private Chat User Selection Dialog
     public User showPrivateChatUserSelectionDialog(Set<User> activeUsers, User currentUser) {
-        UserSelectionDialog userDialog = new UserSelectionDialog(frame, activeUsers, currentUser);
+        PrivateChatCreationDialog userDialog = new PrivateChatCreationDialog(frame, activeUsers, currentUser);
         return userDialog.getSelectedUser(); // Return the selected user
     }
 
