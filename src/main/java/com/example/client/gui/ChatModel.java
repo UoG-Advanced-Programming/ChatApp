@@ -5,6 +5,7 @@ import com.example.common.chats.PrivateChat;
 import com.example.common.messages.TextMessage;
 import com.example.common.users.User;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ChatModel {
@@ -15,6 +16,7 @@ public class ChatModel {
     private final List<Chat> chatList = new ArrayList<>();
     private final Map<Chat, StringBuilder> history = new HashMap<>();
     private User coordinator;
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM dd yyyy HH:mm");
 
     public ChatModel(User currentUser) {
         this.currentUser = currentUser;
@@ -69,7 +71,7 @@ public class ChatModel {
         // Update the cached history
         StringBuilder cache = history.computeIfAbsent(chat, k -> new StringBuilder());
         cache.append("[")
-                .append(message.getTimestamp())
+                .append(TIMESTAMP_FORMATTER.format(message.getTimestamp()))
                 .append("] ")
                 .append(message.getSender().getUsername())
                 .append(": ")
