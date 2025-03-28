@@ -17,5 +17,13 @@ public class ClientSystemMessageProcessor extends ClientMessageProcessor {
             String ip = systemMessage.getContent();
             controller.setIP(ip);
         }
+
+        if (systemMessage.getSystemType().equals(SystemMessageType.COORDINATOR_ID_TRANSITION)) {
+            String id = systemMessage.getContent();
+
+            if (!id.isEmpty()) {
+                controller.findUserById(id).ifPresent(controller::setCoordinator);
+            }
+        }
     }
 }

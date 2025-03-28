@@ -1,8 +1,6 @@
 package com.example.server.processing;
 
-import com.example.common.messages.Communication;
-import com.example.common.messages.UserStatus;
-import com.example.common.messages.UserUpdateMessage;
+import com.example.common.messages.*;
 import com.example.common.users.User;
 import com.example.server.network.ChatServer;
 import com.example.server.network.ServerHandler;
@@ -20,11 +18,13 @@ public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
         CoordinatorManager coordinatorManager = server.getCoordinatorManager();
 
         if (userUpdateMessage.getStatus().equals(UserStatus.ONLINE)) {
-            // Add the client just once
             server.addClient(user, out, handler);
 
-            // Then try to assign as coordinator if needed
-            coordinatorManager.assignCoordinator(user);
+            if (coordinatorManager.getCoordinator() == null) {
+                coordinatorManager.assignCoordinator(user);
+            }
+            SystemMessage systemMessage = new SystemMessage(SystemMessageType.COORDINATOR_ID_TRANSITION, coordinatorManager.getCoordinator().getId());
+            server.broadcast(systemMessage);
         } else {
             // First check if this user is the coordinator
             boolean needReassignment = coordinatorManager.getCoordinator() != null &&
@@ -35,7 +35,8 @@ public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
 
             // Now reassign coordinator if needed
             if (needReassignment) {
-                coordinatorManager.reassignCoordinator(user);
+                System.out.println("COORDINATOR: " + user.getUsername() + " (coordinator) has left the chat");
+                coordinatorManager.reassignCoordinator();
             }
         }
     }

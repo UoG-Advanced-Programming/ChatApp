@@ -13,6 +13,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class ChatController {
     private final ChatModel model;
@@ -33,6 +34,7 @@ public class ChatController {
         this.view.setPrivateChatButtonListener(new PrivateChatButtonListener());
         this.view.setGroupPrivateChatButtonListener(new GroupChatButtonListener());
         this.view.setSendButtonListener(new SendButtonListener());
+        this.view.setMessageFieldActionListener(new SendButtonListener());
         this.view.setChatListListener(new ChatListListener());
         this.view.setGetDetailsButtonListener(new GetDetailsButtonListener());
     }
@@ -91,6 +93,21 @@ public class ChatController {
         return generalChat;
     }
 
+    public void setCoordinator(User user) {
+        model.setCoordinator(user);
+        view.getActiveUsersList().repaint();
+    }
+
+    public User getCoordinator() {
+        return model.getCoordinator();
+    }
+
+    public Optional<User> findUserById(String userId) {
+        // Stream through all connected users and find the one with matching ID
+        return model.getActiveUsers().stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst();
+    }
 
     private void updateWindowTitle() {
         String title = "ChatClient - " + model.getCurrentUser().getUsername();
@@ -100,7 +117,6 @@ public class ChatController {
     // Create General Chat
     private void createGeneralChat() {
         generalChat = new GroupChat("General Chat");
-        generalChat.addParticipant(model.getCurrentUser());
         model.addChat(generalChat);
         model.setCurrentChat(generalChat);
         view.addChat(generalChat);

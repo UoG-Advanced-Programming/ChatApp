@@ -14,6 +14,7 @@ public class ChatModel {
     private final Set<User> activeUsers = new HashSet<>();
     private final List<Chat> chatList = new ArrayList<>();
     private final Map<Chat, StringBuilder> history = new HashMap<>();
+    private User coordinator;
 
     public ChatModel(User currentUser) {
         this.currentUser = currentUser;
@@ -94,23 +95,20 @@ public class ChatModel {
         }
     }
 
-    public String getLastRetrievedIP() {
-        return lastRetrievedIP;
-    }
+    public String getLastRetrievedIP() { return lastRetrievedIP; }
 
-    public void setLastRetrievedIP(String lastRetrievedIP) {
-        this.lastRetrievedIP = lastRetrievedIP;
-    }
+    public void setLastRetrievedIP(String lastRetrievedIP) { this.lastRetrievedIP = lastRetrievedIP; }
 
-    public Set<User> getActiveUsers() {
-        return activeUsers;
-    }
+    public Set<User> getActiveUsers() { return activeUsers; }
 
-    public boolean hasActiveUser(User user) {
-        return activeUsers.contains(user);
-    }
+    public boolean hasActiveUser(User user) { return activeUsers.contains(user); }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public User getCurrentUser() { return currentUser; }
+
+    public User getCoordinator() { return coordinator; }
+
+    public void setCoordinator(User user) {
+        user.setIsCoordinator(true);
+        coordinator = user;
     }
 }
