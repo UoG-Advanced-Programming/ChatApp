@@ -9,9 +9,6 @@ import com.example.common.utils.MessageSerializer;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 
 public class ChatClient {
@@ -20,38 +17,11 @@ public class ChatClient {
     private PrintWriter out;
     private BufferedReader in;
     private Socket socket;
-    private final ScheduledExecutorService heartbeatChecker = Executors.newScheduledThreadPool(1);
-    private volatile long lastHeartbeatTime = System.currentTimeMillis();
 
     public ChatClient(String host) {
         this.host = host;
         this.port = 7005;
         connectToServer();
-        startHeartbeatChecker();
-    }
-
-    private void startHeartbeatChecker() {
-        heartbeatChecker.scheduleAtFixedRate(() -> {
-            long currentTime = System.currentTimeMillis();
-            // If no heartbeat received for more than 30 seconds, assume server is down
-            if (currentTime - lastHeartbeatTime > 30000) {
-                System.err.println("No heartbeat from server for 30 seconds, assuming server is down");
-                disconnect();
-                SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Lost connection to server. Application will now close.",
-                            "Server Disconnected",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    System.exit(0);
-                });
-            }
-        }, 5, 5, TimeUnit.SECONDS);
-    }
-
-    public void recordHeartbeat() {
-        lastHeartbeatTime = System.currentTimeMillis();
     }
 
     private void connectToServer() {
@@ -121,7 +91,6 @@ public class ChatClient {
     }
 
     public void disconnect() {
-        heartbeatChecker.shutdown();
         try {
             if (socket != null) {
                 socket.close(); // Close the socket

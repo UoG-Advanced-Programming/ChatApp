@@ -6,5 +6,4 @@ public enum SystemMessageType {
     IP_REQUEST,
     COORDINATOR_ID_TRANSITION,
     SERVER_SHUTDOWN,
-    HEARTBEAT,
 }
