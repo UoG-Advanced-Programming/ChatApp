@@ -52,7 +52,6 @@ public class GetDetailsButtonListener implements ActionListener {
                                         "\nPort: " + socket.split(":")[1],
                                 "User Details"
                         );
-                        controller.getModel().setCurrentChat(null); // Reset after showing
                     } else {
                         controller.getView().showWarningDialog(
                                 "IP retrieval timed out. Please try again.",
