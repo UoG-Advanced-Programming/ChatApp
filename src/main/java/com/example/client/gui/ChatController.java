@@ -6,16 +6,9 @@ import com.example.common.chats.GroupChat;
 import com.example.common.chats.PrivateChat;
 import com.example.common.messages.*;
 import com.example.common.users.User;
-import com.google.gson.JsonObject;
 import com.example.client.gui.listeners.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 

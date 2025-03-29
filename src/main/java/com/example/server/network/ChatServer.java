@@ -1,6 +1,5 @@
 package com.example.server.network;
 
-import com.example.common.chats.GroupChat;
 import com.example.common.messages.*;
 import com.example.common.users.User;
 import com.example.common.utils.MessageSerializer;

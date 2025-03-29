@@ -3,7 +3,6 @@ package com.example.server.network;
 import com.example.common.messages.SystemMessage;
 import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
-import com.example.server.network.ChatServer;
 
 public class CoordinatorManager {
     private final ChatServer server;
