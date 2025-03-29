@@ -73,6 +73,9 @@ public class ChatClient {
         UserUpdateMessage message = new UserUpdateMessage(user, UserStatus.ONLINE);
         send(message);
 
+        // Register shutdown hook with the current user
+        registerShutdownHook(user);
+
         new Thread(new ClientHandler(in, this, user)).start();
     }
 
@@ -136,6 +139,23 @@ public class ChatClient {
         } catch (IOException e) {
             System.err.println("Error disconnecting: " + e.getMessage());
         }
+    }
+
+    private void registerShutdownHook(User currentUser) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutdown hook triggered - notifying server about disconnection");
+            if (currentUser != null) {
+                UserUpdateMessage userUpdateMessage = new UserUpdateMessage(currentUser, UserStatus.OFFLINE);
+                send(userUpdateMessage);
+                // Small delay to allow message to be sent before full shutdown
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            disconnect();
+        }));
     }
 
     // Getter and setter methods for testing purposes
