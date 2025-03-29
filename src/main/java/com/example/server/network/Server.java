@@ -140,6 +140,12 @@ public class Server {
     public void removeClient(User user) {
         clientWriters.remove(user); // Remove the user from the writers map
         clientHandlers.remove(user); // Remove the user from the handlers map
+        clientHeartbeats.remove(user); // Remove the user from the heartbeat map
+
+        // Reassign the coordinator if necessary
+        if (user.getIsCoordinator()) {
+            coordinatorManager.reassignCoordinator();
+        }
 
         // Notify all clients about the user leaving
         broadcast(new UserUpdateMessage(user, UserStatus.OFFLINE));
