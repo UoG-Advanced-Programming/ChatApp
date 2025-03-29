@@ -4,6 +4,8 @@ import com.example.client.gui.ChatController;
 import com.example.common.messages.Communication;
 import com.example.common.messages.SystemMessage;
 import com.example.common.messages.SystemMessageType;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ClientSystemMessageProcessor extends ClientMessageProcessor {
     @Override
@@ -25,7 +27,10 @@ public class ClientSystemMessageProcessor extends ClientMessageProcessor {
                 break; // No further processing needed
 
             case IP_TRANSITION:
-                controller.setIP(content);
+                JsonObject json = JsonParser.parseString(content).getAsJsonObject();
+                String ip = json.get("ip").getAsString();
+                String port = json.get("port").getAsString();
+                controller.setSocket(ip + ":" + port);
                 break;
 
             case COORDINATOR_ID_TRANSITION:

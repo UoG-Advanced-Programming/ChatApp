@@ -106,10 +106,10 @@ public class ChatServer {
                 .findFirst();
     }
 
-    public String getUserIpAddress(User user) {
+    public String getUserSocket(User user) {
         ServerHandler handler = clientHandlers.get(user);
         if (handler != null) {
-            return handler.getClientIpAddress();
+            return handler.getClientSocket();
         }
         return "Unknown";
     }

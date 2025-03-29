@@ -25,14 +25,18 @@ public class ServerSystemMessageProcessor extends ServerMessageProcessor {
             Optional<User> selectedUserOpt = server.findUserById(selectedUserId);
             if (selectedUserOpt.isPresent()) {
                 User requestedUser = selectedUserOpt.get();
-                String ip = server.getUserIpAddress(requestedUser);
+                String socket = server.getUserSocket(requestedUser);
 
-                if (ip.equals("Unknown")) {
+                if (socket.equals("Unknown")) {
                     /* @ToDo: Add the logic */
                 } else {
                     if (senderOpt.isPresent()) {
                         User sender = senderOpt.get();
-                        SystemMessage response = new SystemMessage(SystemMessageType.IP_TRANSITION, ip);
+                        JsonObject responseContent = new JsonObject();
+                        responseContent.addProperty("ip", socket.split(":")[0]);
+                        responseContent.addProperty("port", socket.split(":")[1]);
+
+                        SystemMessage response = new SystemMessage(SystemMessageType.IP_TRANSITION, responseContent.toString());
                         server.send(sender, response);
                     }
                 }

@@ -11,7 +11,7 @@ import java.util.*;
 public class ChatModel {
     private final User currentUser;
     private Chat currentChat;
-    private String lastRetrievedIP = null;
+    private String lastRetrievedSocket = null;
     private final Set<User> activeUsers = new HashSet<>();
     private final List<Chat> chatList = new ArrayList<>();
     private final Map<Chat, StringBuilder> history = new HashMap<>();
@@ -97,9 +97,9 @@ public class ChatModel {
         }
     }
 
-    public String getLastRetrievedIP() { return lastRetrievedIP; }
+    public String getLastRetrievedSocket() { return lastRetrievedSocket; }
 
-    public void setLastRetrievedIP(String lastRetrievedIP) { this.lastRetrievedIP = lastRetrievedIP; }
+    public void setLastRetrievedSocket(String lastRetrievedIP) { this.lastRetrievedSocket = lastRetrievedIP; }
 
     public Set<User> getActiveUsers() { return activeUsers; }
 

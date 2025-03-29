@@ -42,8 +42,8 @@ public class ChatController {
         this.view.setGetDetailsButtonListener(new GetDetailsButtonListener());
     }
 
-    public void setIP(String ip) {
-        model.setLastRetrievedIP(ip); // Store the received IP
+    public void setSocket(String socket) {
+        model.setLastRetrievedSocket(socket); // Store the received IP
     }
 
     public boolean hasChat(Chat chat) {return model.hasChat(chat);}
@@ -274,7 +274,7 @@ public class ChatController {
         public void actionPerformed(ActionEvent e) {
             User selectedUser = view.getActiveUsersList().getSelectedValue();
             if (selectedUser != null) {
-                model.setLastRetrievedIP(null); // Reset before request
+                model.setLastRetrievedSocket(null); // Reset before request
                 JsonObject json = new JsonObject();
                 json.addProperty("senderId", model.getCurrentUser().getId());
                 json.addProperty("selectedUserId", selectedUser.getId());
@@ -287,7 +287,7 @@ public class ChatController {
                     protected Void doInBackground() throws Exception {
                         int timeout = 5000; // 5 seconds timeout
                         int waited = 0;
-                        while (model.getLastRetrievedIP() == null && waited < timeout) {
+                        while (model.getLastRetrievedSocket() == null && waited < timeout) {
                             Thread.sleep(100); // Wait in small intervals
                             waited += 100;
                         }
@@ -296,11 +296,13 @@ public class ChatController {
 
                     @Override
                     protected void done() {
-                        if (model.getLastRetrievedIP() != null) {
+                        String socket = model.getLastRetrievedSocket();
+                        if (socket != null) {
                             view.showMessageDialog("Username: " + selectedUser.getUsername() +
                                     "\nUser ID: " + selectedUser.getId() +
                                     "\nIs Coordinator: " + selectedUser.getIsCoordinator() +
-                                    "\nIP Address: " + model.getLastRetrievedIP(),
+                                    "\nIP Address: " + socket.split(":")[0] +
+                                    "\nPort: " + socket.split(":")[1],
                                     "User Details"
                             );
                             model.setCurrentChat(null); // Reset after showing

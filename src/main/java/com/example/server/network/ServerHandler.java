@@ -36,9 +36,9 @@ public class ServerHandler implements Runnable {
      * Returns the IP address of the connected client.
      * @return String representation of the client's IP address
      */
-    public String getClientIpAddress() {
+    public String getClientSocket() {
         if (socket != null && socket.getInetAddress() != null) {
-            return socket.getInetAddress().getHostAddress();
+            return socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
         }
         return "Unknown";
     }
