@@ -8,32 +8,39 @@ import com.example.common.messages.SystemMessageType;
 public class ClientSystemMessageProcessor extends ClientMessageProcessor {
     @Override
     public void processMessage(Communication message, ChatController controller) {
-        SystemMessage systemMessage = (SystemMessage) message;
-        if (systemMessage.getSystemType().equals(SystemMessageType.ID_TRANSITION)) {
-            controller.getGeneralChat().setId(systemMessage.getContent());
+        if (!(message instanceof SystemMessage systemMessage)) {
+            return; // Ensure message is of correct type
         }
 
-        // Special handling for server shutdown message
-        if (systemMessage.getSystemType().equals(SystemMessageType.SERVER_SHUTDOWN)) {
-            controller.handleServerDisconnect();
-            return;
-        }
+        SystemMessageType type = systemMessage.getSystemType();
+        String content = systemMessage.getContent();
 
-        if (systemMessage.getSystemType().equals(SystemMessageType.IP_TRANSITION)) {
-            String ip = systemMessage.getContent();
-            controller.setIP(ip);
-        }
+        switch (type) {
+            case ID_TRANSITION:
+                controller.getGeneralChat().setId(content);
+                break;
 
-        if (systemMessage.getSystemType().equals(SystemMessageType.COORDINATOR_ID_TRANSITION)) {
-            String id = systemMessage.getContent();
+            case SERVER_SHUTDOWN:
+                controller.handleServerDisconnect();
+                break; // No further processing needed
 
-            if (!id.isEmpty()) {
-                controller.findUserById(id).ifPresent(controller::setCoordinator);
-            }
-        }
+            case IP_TRANSITION:
+                controller.setIP(content);
+                break;
 
-        if (systemMessage.getSystemType().equals(SystemMessageType.HEARTBEAT)) {
-            controller.recordHeartbeat();
+            case COORDINATOR_ID_TRANSITION:
+                if (!content.isEmpty()) {
+                    controller.findUserById(content).ifPresent(controller::setCoordinator);
+                }
+                break;
+
+            case HEARTBEAT:
+                controller.recordHeartbeat();
+                break;
+
+            default:
+                // Handle unknown message types
+                break;
         }
     }
 }
