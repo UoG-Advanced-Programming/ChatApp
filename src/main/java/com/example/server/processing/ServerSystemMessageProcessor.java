@@ -67,5 +67,13 @@ public class ServerSystemMessageProcessor extends ServerMessageProcessor {
                 }
             }
         }
+        // Check if the system message type is HEARTBEAT
+        if (systemMessage.getSystemType().equals(SystemMessageType.HEARTBEAT)) {
+            // Find the user who has sent the heartbeat
+            Optional<User> user = server.findUserById(systemMessage.getContent());
+
+            // Update their records
+            server.updateHeartbeat(user);
+        }
     }
 }

@@ -1,8 +1,6 @@
 package com.example.client.network;
 
-import com.example.common.messages.Communication;
-import com.example.common.messages.UserStatus;
-import com.example.common.messages.UserUpdateMessage;
+import com.example.common.messages.*;
 import com.example.common.users.User;
 import com.example.common.utils.MessageSerializer;
 
@@ -26,6 +24,7 @@ public class Client {
     private Socket socket; // Socket for communication
     private final ScheduledExecutorService heartbeatChecker = Executors.newScheduledThreadPool(1); // Scheduled executor for heartbeat checking
     private volatile long lastHeartbeatTime = System.currentTimeMillis(); // Last heartbeat time
+    User user;  // The current user
 
     /**
      * Constructor for creating a new Client.
@@ -40,11 +39,21 @@ public class Client {
     }
 
     /**
-     * Starts the heartbeat checker to monitor server connection.
+     * Send a heartbeat message to server.
+     */
+    private void sendHeartbeat() {
+        SystemMessage heartbeatMessage = new SystemMessage(SystemMessageType.HEARTBEAT, user.getId());
+        send(heartbeatMessage);
+    }
+
+    /**
+     * Starts the heartbeat checker to monitor server connection and send a heartbeat too.
      */
     private void startHeartbeatChecker() {
         heartbeatChecker.scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
+            // Send heartbeat to the server
+            sendHeartbeat();
             // If no heartbeat received for more than 20 seconds, assume server is down
             if (currentTime - lastHeartbeatTime > 20000) {
                 System.err.println("No heartbeat from server for 20 seconds, assuming server is down");
@@ -91,7 +100,7 @@ public class Client {
     public void start() {
         String username = promptForCredentials(); // Prompt for user credentials
         assert username != null; // Ensure username is not null
-        User user = new User(username); // Create a new user
+        user = new User(username); // Create a new user
         UserUpdateMessage message = new UserUpdateMessage(user, UserStatus.ONLINE); // Create a user update message
         send(message); // Send the user update message
 

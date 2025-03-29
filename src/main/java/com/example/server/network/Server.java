@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * handling messaging, and coordinating the chat server operations.
  */
 public class Server {
+    private final Map<User, Long> clientHeartbeats = new ConcurrentHashMap<>(); // Stores the last heartbeat time for each client
     private final Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>(); // Map to store clients and their output streams
     private final Map<User, ServerHandler> clientHandlers = new ConcurrentHashMap<>(); // Map to store clients and their handlers
     private static final String GENERAL_CHAT_ID = "general-chat"; // Fixed ID for the general chat
@@ -63,12 +64,29 @@ public class Server {
     }
 
     /**
-     * Starts the heartbeat scheduler to send periodic heartbeat messages to clients.
+     * Update the last heartbeat time for a client
+     */
+    public void updateHeartbeat(Optional<User> user) {
+        if (user.isPresent()) {
+            User sender = user.get();
+            clientHeartbeats.put(sender, System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * Starts the heartbeat scheduler to send periodic heartbeat messages to clients and check client heartbeats.
      */
     private void startHeartbeat() {
         scheduler.scheduleAtFixedRate(() -> {
+            long currentTime = System.currentTimeMillis();
+            clientHeartbeats.forEach((user, lastHeartbeat) -> {
+                if (currentTime - lastHeartbeat > 20000) { // 20 seconds timeout
+                    System.err.println("No heartbeat from client " + user.getUsername() + " for 20 seconds, assuming client is down");
+                    removeClient(user); // Remove the client if no heartbeat received
+                }
+            });
             if (isRunning.get()) {
-                SystemMessage heartbeat = new SystemMessage(SystemMessageType.HEARTBEAT, ""); // Create a heartbeat message
+                SystemMessage heartbeat = new SystemMessage(SystemMessageType.HEARTBEAT, null); // Create a heartbeat message
                 broadcast(heartbeat); // Broadcast the heartbeat message to all clients
             }
         }, 0, 10, TimeUnit.SECONDS); // Schedule the task to run every 10 seconds
