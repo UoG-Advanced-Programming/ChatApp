@@ -12,6 +12,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -33,6 +35,7 @@ public class ChatController {
         this.view.setWindowListener(new WindowListener());
         this.view.setPrivateChatButtonListener(new PrivateChatButtonListener());
         this.view.setGroupPrivateChatButtonListener(new GroupChatButtonListener());
+        this.view.setGetHistoryButtonListener(new GetHistoryButtonListener());
         this.view.setSendButtonListener(new SendButtonListener());
         this.view.setMessageFieldActionListener(new SendButtonListener());
         this.view.setChatListListener(new ChatListListener());
@@ -208,6 +211,31 @@ public class ChatController {
 
         }
     }
+
+    private class GetHistoryButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Chat currentChat = model.getCurrentChat();
+            // Retrieve chat history
+            String chatHistory = model.getFormattedChatHistory(currentChat);
+
+            // Specify the file path
+            String fileName = currentChat.getName().replace(" ", "_") + ".txt";
+
+            try (FileWriter writer = new FileWriter(fileName)) {
+                // Write chat history to the file
+                writer.write(chatHistory);
+                writer.flush();
+
+                // Notify user of success
+                view.showMessageDialog("Chat history saved to " + fileName, "History Saved");
+            } catch (IOException ex) {
+                // Handle any file operation errors
+                view.showErrorDialog("Error saving chat history: " + ex.getMessage(), "Error");
+            }
+        }
+    }
+
 
     private class SendButtonListener implements ActionListener {
         @Override

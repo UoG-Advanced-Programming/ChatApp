@@ -22,6 +22,7 @@ public class ChatView {
     // Buttons
     private final JButton startPrivateChatButton;
     private final JButton startGroupChatButton;
+    private final JButton getHistoryButton;
     private final JButton sendButton;
     private final JButton getDetailsButton;
 
@@ -42,6 +43,11 @@ public class ChatView {
         // Add "Start Group Chat" button
         startGroupChatButton = new JButton("Start Group Chat");
         controlPanel.add(startGroupChatButton);
+
+        // Add "Get History" button
+        getHistoryButton = new JButton("Get History");
+        controlPanel.add(getHistoryButton);
+
         frame.add(controlPanel, BorderLayout.NORTH);
 
         // Chat List Panel (Left)
@@ -182,6 +188,10 @@ public class ChatView {
 
     public void setGroupPrivateChatButtonListener(ActionListener listener) {
         startGroupChatButton.addActionListener(listener);
+    }
+
+    public void setGetHistoryButtonListener(ActionListener listener) {
+        getHistoryButton.addActionListener(listener);
     }
 
     public void setSendButtonListener(ActionListener listener) {
