@@ -1,8 +1,8 @@
 package com.example.client.network;
 
-import com.example.client.gui.ChatController;
-import com.example.client.gui.ChatModel;
-import com.example.client.gui.ChatView;
+import com.example.client.gui.Controller;
+import com.example.client.gui.Model;
+import com.example.client.gui.View;
 import com.example.client.processing.ClientMessageProcessor;
 import com.example.client.processing.ClientMessageProcessorFactory;
 import com.example.common.messages.Communication;
@@ -14,14 +14,14 @@ import java.io.IOException;
 
 public class ClientHandler implements Runnable {
     private final BufferedReader in;
-    private final ChatController controller;
+    private final Controller controller;
 
-    public ClientHandler(BufferedReader in, ChatClient client, User user) {
+    public ClientHandler(BufferedReader in, Client client, User user) {
         this.in = in;
-        ChatModel model = new ChatModel(user);
-        ChatView view = new ChatView();
+        Model model = new Model(user);
+        View view = new View();
         // Initialize controller
-        controller = new ChatController(model, view, client);
+        controller = new Controller(model, view, client);
     }
 
     @Override

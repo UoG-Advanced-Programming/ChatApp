@@ -1,6 +1,6 @@
 package com.example.client.gui.listeners;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.common.messages.UserStatus;
 import com.example.common.messages.UserUpdateMessage;
 
@@ -8,9 +8,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class WindowListener extends WindowAdapter {
-    private final ChatController controller;
+    private final Controller controller;
 
-    public WindowListener(ChatController controller) {
+    public WindowListener(Controller controller) {
         this.controller = controller;
     }
 

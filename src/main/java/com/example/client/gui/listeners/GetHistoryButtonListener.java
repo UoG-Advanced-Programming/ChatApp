@@ -1,6 +1,6 @@
 package com.example.client.gui.listeners;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.common.chats.Chat;
 
 import java.awt.event.ActionEvent;
@@ -9,9 +9,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class GetHistoryButtonListener implements ActionListener {
-    private final ChatController controller;
+    private final Controller controller;
 
-    public GetHistoryButtonListener(ChatController controller) {
+    public GetHistoryButtonListener(Controller controller) {
         this.controller = controller;
     }
 

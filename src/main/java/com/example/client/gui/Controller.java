@@ -1,6 +1,6 @@
 package com.example.client.gui;
 
-import com.example.client.network.ChatClient;
+import com.example.client.network.Client;
 import com.example.common.chats.Chat;
 import com.example.common.chats.GroupChat;
 import com.example.common.chats.PrivateChat;
@@ -12,13 +12,13 @@ import javax.swing.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-public class ChatController {
-    private final ChatModel model;
-    private final ChatView view;
-    private final ChatClient client;
+public class Controller {
+    private final Model model;
+    private final View view;
+    private final Client client;
     private GroupChat generalChat;
 
-    public ChatController(ChatModel model, ChatView view, ChatClient client) {
+    public Controller(Model model, View view, Client client) {
         this.model = model;
         this.view = view;
         this.client = client;
@@ -37,11 +37,11 @@ public class ChatController {
         this.view.setGetDetailsButtonListener(new GetDetailsButtonListener(this));
     }
 
-    public ChatClient getClient() { return client; }
+    public Client getClient() { return client; }
 
-    public ChatModel getModel() { return model; }
+    public Model getModel() { return model; }
 
-    public ChatView getView() { return view; }
+    public View getView() { return view; }
 
     public void setSocket(String socket) {
         model.setLastRetrievedSocket(socket); // Store the received IP
@@ -128,7 +128,7 @@ public class ChatController {
     }
 
     private void updateWindowTitle() {
-        String title = "ChatClient - " + model.getCurrentUser().getUsername();
+        String title = "Client - " + model.getCurrentUser().getUsername();
         view.setWindowTitle(title);
     }
 

@@ -13,11 +13,11 @@ import java.net.Socket;
 
 public class ServerHandler implements Runnable {
     private final Socket socket;
-    private final ChatServer server;
+    private final Server server;
     private BufferedReader in;
     private PrintWriter out;
 
-    public ServerHandler(Socket socket, ChatServer server) {
+    public ServerHandler(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
         try {

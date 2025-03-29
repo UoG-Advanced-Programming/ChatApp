@@ -6,10 +6,7 @@ import java.util.List;
 /**
  * Represents the details of a group chat, including its name and selected users.
  */
-public class GroupChatDetails {
-    private final String chatName;
-    private final List<User> selectedUsers;
-
+public record GroupChatDetails(String chatName, List<User> selectedUsers) {
     /**
      * Constructs a GroupChatDetails instance.
      *
@@ -33,7 +30,8 @@ public class GroupChatDetails {
      *
      * @return The chat name.
      */
-    public String getChatName() {
+    @Override
+    public String chatName() {
         return chatName;
     }
 
@@ -42,7 +40,8 @@ public class GroupChatDetails {
      *
      * @return The list of users in the group chat.
      */
-    public List<User> getSelectedUsers() {
+    @Override
+    public List<User> selectedUsers() {
         return selectedUsers;
     }
 }

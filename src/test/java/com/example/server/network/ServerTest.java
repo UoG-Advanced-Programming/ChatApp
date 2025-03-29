@@ -15,9 +15,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ChatServerTest {
+class ServerTest {
 
-    private ChatServer chatServer;
+    private Server server;
     private User user;
     private StringWriter stringWriter;
     private PrintWriter writer;
@@ -27,7 +27,7 @@ class ChatServerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        chatServer = new ChatServer();
+        server = new Server();
         user = new User("testUser");
         stringWriter = new StringWriter();
         writer = new PrintWriter(stringWriter);
@@ -43,31 +43,31 @@ class ChatServerTest {
         }).start();
         Socket socket = serverSocket.accept();
 
-        handler = new ServerHandler(socket, chatServer); // Using a real instance with a valid socket
+        handler = new ServerHandler(socket, server); // Using a real instance with a valid socket
     }
 
     @Test
     void testAddClient() {
-        chatServer.addClient(user, writer, handler);
+        server.addClient(user, writer, handler);
         System.out.println("Client added: " + user.getUsername());
 
-        assertTrue(chatServer.getClientWriters().containsKey(user));
-        assertEquals(writer, chatServer.getClient(user));
+        assertTrue(server.getClientWriters().containsKey(user));
+        assertEquals(writer, server.getClient(user));
     }
 
     @Test
     void testRemoveClient() {
-        chatServer.addClient(user, writer, handler);
-        chatServer.removeClient(user);
+        server.addClient(user, writer, handler);
+        server.removeClient(user);
         System.out.println("Client removed: " + user.getUsername());
 
-        assertFalse(chatServer.getClientWriters().containsKey(user));
+        assertFalse(server.getClientWriters().containsKey(user));
     }
 
     @Test
     void testFindUserById() {
-        chatServer.addClient(user, writer, handler);
-        Optional<User> foundUser = chatServer.findUserById(user.getId());
+        server.addClient(user, writer, handler);
+        Optional<User> foundUser = server.findUserById(user.getId());
 
         assertTrue(foundUser.isPresent());
         assertEquals(user, foundUser.get());
@@ -76,9 +76,9 @@ class ChatServerTest {
 
     @Test
     void testGetUserSocket() {
-        chatServer.addClient(user, writer, handler);
+        server.addClient(user, writer, handler);
 
-        String actualSocketAddress = chatServer.getUserSocket(user);
+        String actualSocketAddress = server.getUserSocket(user);
         String expectedSocketAddress = clientSocket.getLocalSocketAddress().toString().replaceFirst("/", "");
         assertEquals(expectedSocketAddress, actualSocketAddress);
         System.out.println("User socket address: " + actualSocketAddress);
@@ -86,8 +86,8 @@ class ChatServerTest {
 
     @Test
     void testSelectRandomUser() {
-        chatServer.addClient(user, writer, handler);
-        User randomUser = chatServer.selectRandomUser();
+        server.addClient(user, writer, handler);
+        User randomUser = server.selectRandomUser();
 
         assertNotNull(randomUser);
         assertEquals(user, randomUser);
@@ -96,28 +96,28 @@ class ChatServerTest {
 
     @Test
     void testBroadcast() {
-        chatServer.addClient(user, writer, handler);
+        server.addClient(user, writer, handler);
         Communication message = new SystemMessage(SystemMessageType.HEARTBEAT, "");
 
-        chatServer.broadcast(message);
+        server.broadcast(message);
         assertTrue(stringWriter.toString().contains("HEARTBEAT"));
         System.out.println("Broadcast message: " + stringWriter.toString());
     }
 
     @Test
     void testSend() {
-        chatServer.addClient(user, writer, handler);
+        server.addClient(user, writer, handler);
         Communication message = new SystemMessage(SystemMessageType.HEARTBEAT, "");
 
-        chatServer.send(user, message);
+        server.send(user, message);
         assertTrue(stringWriter.toString().contains("HEARTBEAT"));
         System.out.println("Sent message: " + stringWriter.toString());
     }
 
     @Test
     void testShutdown() {
-        chatServer.addClient(user, writer, handler);
-        chatServer.shutdown();
+        server.addClient(user, writer, handler);
+        server.shutdown();
         System.out.println("Server shutdown initiated.");
 
         // Allow some time for the shutdown process to complete
@@ -127,7 +127,7 @@ class ChatServerTest {
             e.printStackTrace();
         }
 
-        assertTrue(chatServer.getClientWriters().containsKey(user));
+        assertTrue(server.getClientWriters().containsKey(user));
         System.out.println("Server terminated.");
     }
 }

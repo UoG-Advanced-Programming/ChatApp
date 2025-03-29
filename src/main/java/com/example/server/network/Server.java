@@ -15,7 +15,7 @@ import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ChatServer {
+public class Server {
     private final Map<User, PrintWriter> clientWriters = new ConcurrentHashMap<>();
     private final Map<User, ServerHandler> clientHandlers = new ConcurrentHashMap<>();
     private static final String GENERAL_CHAT_ID = "general-chat"; // Fixed ID for the general chat
@@ -23,7 +23,7 @@ public class ChatServer {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
-    public ChatServer() {
+    public Server() {
         // Initialize the coordinator manager with reference to this server
         this.coordinatorManager = new CoordinatorManager(this);
 
@@ -34,7 +34,7 @@ public class ChatServer {
     public static void main(String[] args) throws Exception {
         System.out.println("The chat server is running...");
         ExecutorService pool = Executors.newFixedThreadPool(500);
-        ChatServer server = new ChatServer();
+        Server server = new Server();
 
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));

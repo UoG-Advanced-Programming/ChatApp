@@ -16,9 +16,9 @@ import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ChatClientTest {
+public class ClientTest {
     // Declaring variables for test client, output writer, test user, and test chat
-    private TestChatClient chatClient;
+    private TestClient client;
     private StringWriter outputWriter;
     private User testUser;
     private GroupChat testChat;
@@ -34,8 +34,8 @@ public class ChatClientTest {
         PrintWriter printWriter = new PrintWriter(outputWriter, true); // Wrap StringWriter with PrintWriter
 
         // Initializing the test chat client
-        chatClient = new TestChatClient("localhost"); // Create a new test chat client pointing to localhost
-        chatClient.setOut(printWriter); // Set the output of chat client to our PrintWriter
+        client = new TestClient("localhost"); // Create a new test chat client pointing to localhost
+        client.setOut(printWriter); // Set the output of chat client to our PrintWriter
 
         // Logging the setup completion details
         System.out.println("Test setup completed at: " + getCurrentFormattedDateTime()); // Log the time when setup is completed
@@ -53,8 +53,8 @@ public class ChatClientTest {
         System.out.println("  Chat ID: " + testChat.getId()); // Log the chat ID
         System.out.println("  Content: Hello, world!"); // Log the message content
 
-        // Sending the message through the chat client
-        chatClient.send(message); // Send the created message
+        // Sending the message through the client
+        client.send(message); // Send the created message
         System.out.println("Message sent to client"); // Log that the message was sent
 
         // Capturing and logging the output from the client
@@ -91,8 +91,8 @@ public class ChatClientTest {
         System.out.println("  Username: " + testUser.getUsername()); // Log the username
         System.out.println("  Status: " + UserStatus.ONLINE); // Log the status
 
-        // Sending the user status update message through the chat client
-        chatClient.send(message); // Send the created status update message
+        // Sending the user status update message through the client
+        client.send(message); // Send the created status update message
         System.out.println("User status update message sent to client"); // Log that the status update message was sent
 
         // Capturing and logging the output from the client
@@ -121,7 +121,7 @@ public class ChatClientTest {
         System.out.println("Current User's Login: " + testUser.getUsername()); // Log the username of the test user
 
         // Logging the original writer status
-        System.out.println("Original PrintWriter instance: " + chatClient.getOut()); // Log the original PrintWriter instance
+        System.out.println("Original PrintWriter instance: " + client.getOut()); // Log the original PrintWriter instance
 
         // Setting up a PrintWriter that will throw an exception when println is called
         System.out.println("Creating failing PrintWriter that will throw a RuntimeException"); // Log the creation of a failing PrintWriter
@@ -134,8 +134,8 @@ public class ChatClientTest {
             }
         };
 
-        System.out.println("Setting failing PrintWriter on ChatClient"); // Log the setting of the failing PrintWriter
-        chatClient.setOut(failingWriter); // Set the failing PrintWriter on the chat client
+        System.out.println("Setting failing PrintWriter on Client"); // Log the setting of the failing PrintWriter
+        client.setOut(failingWriter); // Set the failing PrintWriter on the chat client
 
         // Creating and logging a test message
         TextMessage message = new TextMessage(testChat, testUser, "Hello, world!"); // Create a new test message
@@ -146,12 +146,12 @@ public class ChatClientTest {
 
         // Logging that we're about to send a message that should cause an error
         System.out.println("About to send message using failing writer..."); // Log that an error is expected
-        System.out.println("(Expect to see error message from ChatClient's exception handler)"); // Log the expected error message
+        System.out.println("(Expect to see error message from Client's exception handler)"); // Log the expected error message
 
         // Testing that the exception is caught and doesn't propagate out of the send method
         System.out.println("Testing that exception is caught and doesn't propagate out of send()"); // Log the test for exception handling
         try {
-            chatClient.send(message); // Attempt to send the message
+            client.send(message); // Attempt to send the message
             System.out.println("✓ Success: No exception was thrown from send() method"); // Log success if no exception is thrown
         } catch (Exception e) {
             System.out.println("✗ Failure: Exception escaped from send() method: " + e); // Log failure if an exception is thrown
@@ -159,8 +159,8 @@ public class ChatClientTest {
         }
 
         // Additional verification and logging
-        System.out.println("Test completed successfully - ChatClient properly handled the error"); // Log successful error handling
-        System.out.println("(The 'Error sending message: Simulated network error' above comes from ChatClient's error handler)"); // Log where the error message came from
+        System.out.println("Test completed successfully - Client properly handled the error"); // Log successful error handling
+        System.out.println("(The 'Error sending message: Simulated network error' above comes from Client's error handler)"); // Log where the error message came from
 
         // Printing a separator for readability
         System.out.println("------------------------------------------------------"); // Print a separator for readability
@@ -175,7 +175,7 @@ public class ChatClientTest {
 
         // Testing the handling of sending a null message
         System.out.println("Testing send(null) handling..."); // Log the test for null message handling
-        assertDoesNotThrow(() -> chatClient.send(null), "Client should handle null messages gracefully"); // Assert that null messages are handled gracefully
+        assertDoesNotThrow(() -> client.send(null), "Client should handle null messages gracefully"); // Assert that null messages are handled gracefully
 
         // Resetting the output writer for the next test
         outputWriter.getBuffer().setLength(0); // Reset the output writer
@@ -183,7 +183,7 @@ public class ChatClientTest {
         // Testing the handling of messages with null content
         System.out.println("Testing message with null content..."); // Log the test for null content handling
         TextMessage nullContentMsg = new TextMessage(testChat, testUser, null); // Create a message with null content
-        assertDoesNotThrow(() -> chatClient.send(nullContentMsg), "Client should handle null message content gracefully"); // Assert that null content is handled gracefully
+        assertDoesNotThrow(() -> client.send(nullContentMsg), "Client should handle null message content gracefully"); // Assert that null content is handled gracefully
 
         // Capturing and logging the output for the null content message
         String nullContentOutput = outputWriter.toString().trim(); // Capture the output for the null content message
@@ -198,7 +198,7 @@ public class ChatClientTest {
         // Testing the handling of messages with null chat
         System.out.println("Testing message with null chat..."); // Log the test for null chat handling
         TextMessage nullChatMsg = new TextMessage(null, testUser, "Test content"); // Create a message with null chat
-        assertDoesNotThrow(() -> chatClient.send(nullChatMsg), "Client should handle null chat gracefully"); // Assert that null chat is handled gracefully
+        assertDoesNotThrow(() -> client.send(nullChatMsg), "Client should handle null chat gracefully"); // Assert that null chat is handled gracefully
 
         // Capturing and logging the output for the null chat message
         String nullChatOutput = outputWriter.toString().trim(); // Capture the output for the null chat message
@@ -217,7 +217,7 @@ public class ChatClientTest {
         System.out.println("Current time: " + getCurrentFormattedDateTime()); // Log the current time
 
         // Creating a tracking class for testing disconnection
-        class DisconnectTestClient extends TestChatClient {
+        class DisconnectTestClient extends TestClient {
             private boolean socketClosed = false;
             private boolean writerClosed = false;
             private boolean readerClosed = false;
@@ -283,15 +283,15 @@ public class ChatClientTest {
     }
 
     /**
-     * Test subclass of ChatClient that doesn't establish a real connection
+     * Test subclass of Client that doesn't establish a real connection
      * and allows us to set values for testing
      */
-    private static class TestChatClient extends ChatClient {
+    private static class TestClient extends Client {
         private PrintWriter out;
         private BufferedReader in;
         private Socket socket;
 
-        public TestChatClient(String host) {
+        public TestClient(String host) {
             super(host);
         }
 
@@ -351,7 +351,7 @@ public class ChatClientTest {
             // super.disconnect();
 
             // For testing purposes, just simulate resource cleanup
-            System.out.println("TestChatClient: simulating disconnection and resource cleanup");
+            System.out.println("TestClient: simulating disconnection and resource cleanup");
         }
     }
 }

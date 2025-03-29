@@ -2,7 +2,7 @@ package com.example.server.processing;
 
 import com.example.common.messages.*;
 import com.example.common.users.User;
-import com.example.server.network.ChatServer;
+import com.example.server.network.Server;
 import com.example.server.network.ServerHandler;
 import com.example.server.network.CoordinatorManager;
 
@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 
 public class ServerUserUpdateMessageProcessor extends ServerMessageProcessor {
     @Override
-    public void processMessage(Communication message, ChatServer server, PrintWriter out, ServerHandler handler) {
+    public void processMessage(Communication message, Server server, PrintWriter out, ServerHandler handler) {
         UserUpdateMessage userUpdateMessage = (UserUpdateMessage) message;
         System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
 

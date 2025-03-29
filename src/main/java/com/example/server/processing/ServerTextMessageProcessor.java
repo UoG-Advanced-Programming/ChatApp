@@ -5,14 +5,14 @@ import com.example.common.messages.TextMessage;
 import com.example.common.utils.MessageSerializer;
 import com.example.common.chats.Chat;
 import com.example.common.users.User;
-import com.example.server.network.ChatServer;
+import com.example.server.network.Server;
 import com.example.server.network.ServerHandler;
 
 import java.io.PrintWriter;
 
 public class ServerTextMessageProcessor extends ServerMessageProcessor {
     @Override
-    public void processMessage(Communication message, ChatServer server, PrintWriter out, ServerHandler handler) {
+    public void processMessage(Communication message, Server server, PrintWriter out, ServerHandler handler) {
         TextMessage textMessage = (TextMessage) message;
         Chat targetChat = textMessage.getChat();
 

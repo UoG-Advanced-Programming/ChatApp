@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 
-public class ChatClient {
+public class Client {
     private final String host;
     private final int port;
     private PrintWriter out;
@@ -23,7 +23,7 @@ public class ChatClient {
     private final ScheduledExecutorService heartbeatChecker = Executors.newScheduledThreadPool(1);
     private volatile long lastHeartbeatTime = System.currentTimeMillis();
 
-    public ChatClient(String host) {
+    public Client(String host) {
         this.host = host;
         this.port = 7005;
         connectToServer();
@@ -189,7 +189,7 @@ public class ChatClient {
             System.exit(1); // Exit if no IP is provided
         }
 
-        ChatClient client = new ChatClient(args[0]);
+        Client client = new Client(args[0]);
 
         if (client.socket == null || client.socket.isClosed()) {
             System.err.println("Failed to connect to the server. Exiting...");

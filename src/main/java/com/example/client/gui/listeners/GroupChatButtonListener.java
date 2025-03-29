@@ -1,6 +1,6 @@
 package com.example.client.gui.listeners;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.client.gui.GroupChatDetails;
 import com.example.common.chats.GroupChat;
 import com.example.common.users.User;
@@ -9,9 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GroupChatButtonListener implements ActionListener {
-    private final ChatController controller;
+    private final Controller controller;
 
-    public GroupChatButtonListener(ChatController controller) {
+    public GroupChatButtonListener(Controller controller) {
         this.controller = controller;
     }
 
@@ -25,8 +25,8 @@ public class GroupChatButtonListener implements ActionListener {
                 controller.getModel().getCurrentUser());
 
         if (chatDetails != null) {
-            GroupChat chat = new GroupChat(chatDetails.getChatName());
-            for (User user : chatDetails.getSelectedUsers()) {
+            GroupChat chat = new GroupChat(chatDetails.chatName());
+            for (User user : chatDetails.selectedUsers()) {
                 chat.addParticipant(user);
             }
             chat.addParticipant(controller.getModel().getCurrentUser());

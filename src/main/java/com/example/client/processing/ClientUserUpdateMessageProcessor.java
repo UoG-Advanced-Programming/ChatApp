@@ -1,13 +1,13 @@
 package com.example.client.processing;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.common.messages.Communication;
 import com.example.common.messages.UserStatus;
 import com.example.common.messages.UserUpdateMessage;
 
 public class ClientUserUpdateMessageProcessor extends ClientMessageProcessor {
     @Override
-    public void processMessage(Communication message, ChatController controller) {
+    public void processMessage(Communication message, Controller controller) {
         UserUpdateMessage userUpdateMessage = (UserUpdateMessage) message;
         System.out.println("User " + userUpdateMessage.getUser().getUsername() + " is now " + userUpdateMessage.getStatus());
 

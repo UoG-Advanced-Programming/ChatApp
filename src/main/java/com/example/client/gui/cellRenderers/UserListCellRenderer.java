@@ -1,4 +1,4 @@
-package com.example.client.gui;
+package com.example.client.gui.cellRenderers;
 
 import com.example.common.users.User;
 

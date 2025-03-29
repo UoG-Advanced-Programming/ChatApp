@@ -1,6 +1,6 @@
 package com.example.client.gui.listeners;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.common.messages.SystemMessage;
 import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
@@ -11,9 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GetDetailsButtonListener implements ActionListener {
-    private final ChatController controller;
+    private final Controller controller;
 
-    public GetDetailsButtonListener(ChatController controller) {
+    public GetDetailsButtonListener(Controller controller) {
         this.controller = controller;
     }
 

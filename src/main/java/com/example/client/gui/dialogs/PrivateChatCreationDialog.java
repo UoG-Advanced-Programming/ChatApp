@@ -1,5 +1,6 @@
-package com.example.client.gui;
+package com.example.client.gui.dialogs;
 
+import com.example.client.gui.cellRenderers.UserListCellRenderer;
 import com.example.common.users.User;
 
 import javax.swing.*;

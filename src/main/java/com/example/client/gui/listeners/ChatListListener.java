@@ -1,15 +1,15 @@
 package com.example.client.gui.listeners;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.common.chats.Chat;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class ChatListListener implements ListSelectionListener {
-    private final ChatController controller;
+    private final Controller controller;
 
-    public ChatListListener(ChatController controller) {
+    public ChatListListener(Controller controller) {
         this.controller = controller;
     }
 

@@ -8,7 +8,7 @@ import com.example.common.users.User;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class ChatModel {
+public class Model {
     private final User currentUser;
     private Chat currentChat;
     private String lastRetrievedSocket = null;
@@ -18,7 +18,7 @@ public class ChatModel {
     private User coordinator;
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM dd yyyy HH:mm");
 
-    public ChatModel(User currentUser) {
+    public Model(User currentUser) {
         this.currentUser = currentUser;
     }
 

@@ -1,5 +1,9 @@
 package com.example.client.gui;
 
+import com.example.client.gui.cellRenderers.ActiveUserCellRenderer;
+import com.example.client.gui.cellRenderers.ChatListCellRenderer;
+import com.example.client.gui.dialogs.GroupChatCreationDialog;
+import com.example.client.gui.dialogs.PrivateChatCreationDialog;
 import com.example.common.chats.Chat;
 import com.example.common.users.User;
 
@@ -10,7 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.util.Set;
 
-public class ChatView {
+public class View {
     private final JFrame frame;
     private final JTextArea chatDisplay;
     private final JTextField messageField;
@@ -26,7 +30,7 @@ public class ChatView {
     private final JButton sendButton;
     private final JButton getDetailsButton;
 
-    public ChatView() {
+    public View() {
         frame = new JFrame("Chat Client");
         frame.setSize(800, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

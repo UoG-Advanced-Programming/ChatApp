@@ -5,11 +5,11 @@ import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
 
 public class CoordinatorManager {
-    private final ChatServer server;
+    private final Server server;
     private User coordinator = null;
 
-    public CoordinatorManager(ChatServer chatServer) {
-        this.server = chatServer;
+    public CoordinatorManager(Server server) {
+        this.server = server;
     }
 
     /**

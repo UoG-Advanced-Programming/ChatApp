@@ -1,6 +1,6 @@
 package com.example.client.processing;
 
-import com.example.client.gui.ChatController;
+import com.example.client.gui.Controller;
 import com.example.common.messages.Communication;
 import com.example.common.messages.SystemMessage;
 import com.example.common.messages.SystemMessageType;
@@ -9,7 +9,7 @@ import com.google.gson.JsonParser;
 
 public class ClientSystemMessageProcessor extends ClientMessageProcessor {
     @Override
-    public void processMessage(Communication message, ChatController controller) {
+    public void processMessage(Communication message, Controller controller) {
         if (!(message instanceof SystemMessage systemMessage)) {
             return; // Ensure message is of correct type
         }

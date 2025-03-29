@@ -1,10 +1,10 @@
 package com.example.client.processing;
 
 // Import statements for various classes used in the tests
-import com.example.client.gui.ChatController;
-import com.example.client.gui.ChatModel;
-import com.example.client.gui.ChatView;
-import com.example.client.network.ChatClient;
+import com.example.client.gui.Controller;
+import com.example.client.gui.Model;
+import com.example.client.gui.View;
+import com.example.client.network.Client;
 import com.example.common.chats.Chat;
 import com.example.common.chats.GroupChat;
 import com.example.common.chats.PrivateChat;
@@ -21,16 +21,16 @@ public class MessageProcessorTest {
     // Declaring variables for message processors, controller, test users, and chats
     private ClientTextMessageProcessor textMessageProcessor;
     private ClientUserUpdateMessageProcessor userUpdateProcessor;
-    private TestChatController controller;
+    private TestController controller;
     private User testUser;
     private User testUser2;
     private GroupChat testGroupChat;
     private PrivateChat testPrivateChat;
 
     // Test implementations of dependencies
-    private ChatModel mockModel;
-    private ChatView mockView;
-    private ChatClient mockClient;
+    private Model mockModel;
+    private View mockView;
+    private Client mockClient;
 
     @BeforeEach
     public void setUp() {
@@ -42,13 +42,13 @@ public class MessageProcessorTest {
         textMessageProcessor = new ClientTextMessageProcessor(); // Initialize text message processor
         userUpdateProcessor = new ClientUserUpdateMessageProcessor(); // Initialize user update message processor
 
-        // Creating mock dependencies for ChatController with properly initialized values
-        mockModel = new TestChatModel(testUser); // Create a mock ChatModel with testUser
-        mockView = new TestChatView(); // Create a mock ChatView
-        mockClient = new TestChatClient(); // Create a mock ChatClient
+        // Creating mock dependencies for Controller with properly initialized values
+        mockModel = new TestModel(testUser); // Create a mock Model with testUser
+        mockView = new TestView(); // Create a mock View
+        mockClient = new TestClient(); // Create a mock Client
 
         // Creating the controller with mock dependencies
-        controller = new TestChatController(mockModel, mockView, mockClient); // Initialize the ChatController with mocks
+        controller = new TestController(mockModel, mockView, mockClient); // Initialize the Controller with mocks
 
         // Creating a test group chat
         testGroupChat = new GroupChat("TestGroupChat"); // Create a group chat named "TestGroupChat"
@@ -137,29 +137,29 @@ public class MessageProcessorTest {
         assertEquals(testUser, controller.getLastUserRemoved(), "The user should be passed to removeActiveUser"); // Verify the user was passed to removeActiveUser
     }
 
-    // Test implementation of ChatModel
-    private static class TestChatModel extends ChatModel {
-        public TestChatModel(User currentUser) {
+    // Test implementation of Model
+    private static class TestModel extends Model {
+        public TestModel(User currentUser) {
             super(currentUser); // Call the parent constructor with currentUser
         }
 
         // Override any methods that might be called during tests
     }
 
-    // Test implementation of ChatView
-    private static class TestChatView extends ChatView {
+    // Test implementation of View
+    private static class TestView extends View {
         // Override constructor if needed
-        public TestChatView() {
+        public TestView() {
             // No call to super if it requires parameters
         }
 
-        // Implement any necessary methods from ChatView
+        // Implement any necessary methods from View
     }
 
-    // Test implementation of ChatClient
-    private static class TestChatClient extends ChatClient {
-        public TestChatClient() {
-            // Fix: ChatClient appears to only take a hostname string, not hostname and port
+    // Test implementation of Client
+    private static class TestClient extends Client {
+        public TestClient() {
+            // Fix: Client appears to only take a hostname string, not hostname and port
             super("localhost:7005"); // Using the port you provided (7005)
         }
 
@@ -170,8 +170,8 @@ public class MessageProcessorTest {
         }
     }
 
-    // Custom test implementation of ChatController
-    private static class TestChatController extends ChatController {
+    // Custom test implementation of Controller
+    private static class TestController extends Controller {
         private boolean chatChecked = false;
         private boolean chatAdded = false;
         private boolean messageShown = false;
@@ -183,7 +183,7 @@ public class MessageProcessorTest {
         private User lastUserAdded = null;
         private User lastUserRemoved = null;
 
-        public TestChatController(ChatModel model, ChatView view, ChatClient client) {
+        public TestController(Model model, View view, Client client) {
             super(model, view, client); // Call the parent constructor with model, view, and client
         }
 

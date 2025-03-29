@@ -4,7 +4,7 @@ import com.example.common.messages.Communication;
 import com.example.common.messages.SystemMessage;
 import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
-import com.example.server.network.ChatServer;
+import com.example.server.network.Server;
 import com.example.server.network.ServerHandler;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class ServerSystemMessageProcessor extends ServerMessageProcessor {
     @Override
-    public void processMessage(Communication message, ChatServer server, PrintWriter out, ServerHandler handler) {
+    public void processMessage(Communication message, Server server, PrintWriter out, ServerHandler handler) {
         SystemMessage systemMessage = (SystemMessage) message;
 
         if (systemMessage.getSystemType().equals(SystemMessageType.IP_REQUEST)) {
