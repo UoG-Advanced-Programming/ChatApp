@@ -1,6 +1,6 @@
 package com.example.server.network;
 
-import com.example.common.chats.Chat;
+// Import statements for various classes used in the tests
 import com.example.common.chats.GroupChat;
 import com.example.common.messages.TextMessage;
 import com.example.common.users.User;
@@ -9,13 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ChatServerTest {
-
+    // Declaring variables for chat server, test users, string writers, print writers, and test chat
     private ChatServer chatServer;
     private User testUser1;
     private User testUser2;
@@ -27,106 +25,106 @@ public class ChatServerTest {
 
     @BeforeEach
     public void setUp() {
-        // Initialize the chat server
-        chatServer = new ChatServer();
+        // Initializing the chat server before each test
+        chatServer = new ChatServer(); // Create a new instance of ChatServer
 
-        // Create test users
-        testUser1 = new User("TestUser1");
-        testUser2 = new User("TestUser2");
+        // Creating test users
+        testUser1 = new User("TestUser1"); // Create a new user named "TestUser1"
+        testUser2 = new User("TestUser2"); // Create a new user named "TestUser2"
 
-        // Create a GroupChat with just the name parameter
-        testChat = new GroupChat("TestChat");
+        // Creating a GroupChat with just the name parameter
+        testChat = new GroupChat("TestChat"); // Create a new group chat named "TestChat"
 
-        // If needed, add the users to the chat after creation
+        // Adding the users to the chat after creation
         // (if GroupChat has methods like addUser() or addParticipant())
-        testChat.addParticipant(testUser1);  // Adjust method name if needed
-        testChat.addParticipant(testUser2);  // Adjust method name if needed
+        testChat.addParticipant(testUser1);  // Add testUser1 to the group chat
+        testChat.addParticipant(testUser2);  // Add testUser2 to the group chat
 
-        // Set up StringWriters to capture output
-        stringWriter1 = new StringWriter();
-        stringWriter2 = new StringWriter();
-        printWriter1 = new PrintWriter(stringWriter1, true);
-        printWriter2 = new PrintWriter(stringWriter2, true);
+        // Setting up StringWriters to capture output
+        stringWriter1 = new StringWriter(); // Initialize StringWriter for testUser1
+        stringWriter2 = new StringWriter(); // Initialize StringWriter for testUser2
+        printWriter1 = new PrintWriter(stringWriter1, true); // Wrap StringWriter with PrintWriter for testUser1
+        printWriter2 = new PrintWriter(stringWriter2, true); // Wrap StringWriter with PrintWriter for testUser2
     }
 
     @Test
     public void testAddClient() {
-        // Add a client to the server
-        chatServer.addClient(testUser1, printWriter1);
+        // Adding a client to the server
+        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
 
-        // Verify client was added
-        assertTrue(chatServer.getClientWriters().containsKey(testUser1));
-        assertEquals(1, chatServer.getClientWriters().size());
+        // Verifying that the client was added
+        assertTrue(chatServer.getClientWriters().containsKey(testUser1)); // Check if testUser1 is in the client writers map
+        assertEquals(1, chatServer.getClientWriters().size()); // Check if the size of the client writers map is 1
     }
 
     @Test
     public void testRemoveClient() {
-        // Add clients
-        chatServer.addClient(testUser1, printWriter1);
-        chatServer.addClient(testUser2, printWriter2);
+        // Adding clients to the server
+        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
+        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
 
-        // Verify they were added
-        assertEquals(2, chatServer.getClientWriters().size());
+        // Verifying that the clients were added
+        assertEquals(2, chatServer.getClientWriters().size()); // Check if the size of the client writers map is 2
 
-        // Remove a client
-        chatServer.removeClient(testUser1);
+        // Removing a client from the server
+        chatServer.removeClient(testUser1); // Remove testUser1 from the server
 
-        // Verify client was removed
-        assertFalse(chatServer.getClientWriters().containsKey(testUser1));
-        assertTrue(chatServer.getClientWriters().containsKey(testUser2));
-        assertEquals(1, chatServer.getClientWriters().size());
+        // Verifying that the client was removed
+        assertFalse(chatServer.getClientWriters().containsKey(testUser1)); // Check if testUser1 is not in the client writers map
+        assertTrue(chatServer.getClientWriters().containsKey(testUser2)); // Check if testUser2 is still in the client writers map
+        assertEquals(1, chatServer.getClientWriters().size()); // Check if the size of the client writers map is 1
     }
 
     @Test
     public void testBroadcastMessage() {
-        // Add clients
-        chatServer.addClient(testUser1, printWriter1);
-        chatServer.addClient(testUser2, printWriter2);
+        // Adding clients to the server
+        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
+        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
 
-        // Create message with the required parameters
-        TextMessage message = new TextMessage(testChat, testUser1, "Hello everyone!");
+        // Creating a message with the required parameters
+        TextMessage message = new TextMessage(testChat, testUser1, "Hello everyone!"); // Create a new text message
 
-        // Broadcast message
-        chatServer.broadcast(message);
+        // Broadcasting the message to all clients
+        chatServer.broadcast(message); // Broadcast the message
 
-        // Verify message was sent to all clients
-        assertTrue(stringWriter1.toString().contains("Hello everyone!"));
-        assertTrue(stringWriter2.toString().contains("Hello everyone!"));
+        // Verifying that the message was sent to all clients
+        assertTrue(stringWriter1.toString().contains("Hello everyone!")); // Check if the message content is in stringWriter1
+        assertTrue(stringWriter2.toString().contains("Hello everyone!")); // Check if the message content is in stringWriter2
     }
 
     @Test
     public void testFirstClientBecomesCoordinator() {
-        // Add first client
-        chatServer.addClient(testUser1, printWriter1);
+        // Adding the first client to the server
+        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
 
-        // Verify they're set as coordinator
-        assertTrue(testUser1.getIsCoordinator());
-        assertEquals(testUser1, chatServer.getCoordinator());
+        // Verifying that the first client is set as coordinator
+        assertTrue(testUser1.getIsCoordinator()); // Check if testUser1 is the coordinator
+        assertEquals(testUser1, chatServer.getCoordinator()); // Check if testUser1 is the coordinator in the server
 
-        // Add second client
-        chatServer.addClient(testUser2, printWriter2);
+        // Adding the second client to the server
+        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
 
-        // Verify first client is still coordinator
-        assertTrue(testUser1.getIsCoordinator());
-        assertFalse(testUser2.getIsCoordinator());
-        assertEquals(testUser1, chatServer.getCoordinator());
+        // Verifying that the first client is still the coordinator
+        assertTrue(testUser1.getIsCoordinator()); // Check if testUser1 is still the coordinator
+        assertFalse(testUser2.getIsCoordinator()); // Check if testUser2 is not the coordinator
+        assertEquals(testUser1, chatServer.getCoordinator()); // Check if testUser1 is still the coordinator in the server
     }
 
     @Test
     public void testCoordinatorReassignmentWhenCoordinatorLeaves() {
-        // Add clients
-        chatServer.addClient(testUser1, printWriter1);
-        chatServer.addClient(testUser2, printWriter2);
+        // Adding clients to the server
+        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
+        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
 
-        // First client should be coordinator
-        assertTrue(testUser1.getIsCoordinator());
-        assertEquals(testUser1, chatServer.getCoordinator());
+        // Verifying that the first client is the coordinator
+        assertTrue(testUser1.getIsCoordinator()); // Check if testUser1 is the coordinator
+        assertEquals(testUser1, chatServer.getCoordinator()); // Check if testUser1 is the coordinator in the server
 
-        // Remove coordinator
-        chatServer.removeClient(testUser1);
+        // Removing the coordinator from the server
+        chatServer.removeClient(testUser1); // Remove testUser1 from the server
 
-        // Second client should now be coordinator
-        assertTrue(testUser2.getIsCoordinator());
-        assertEquals(testUser2, chatServer.getCoordinator());
+        // Verifying that the second client is now the coordinator
+        assertTrue(testUser2.getIsCoordinator()); // Check if testUser2 is now the coordinator
+        assertEquals(testUser2, chatServer.getCoordinator()); // Check if testUser2 is the coordinator in the server
     }
 }
