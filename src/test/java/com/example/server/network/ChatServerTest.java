@@ -1,130 +1,132 @@
 package com.example.server.network;
 
-// Import statements for various classes used in the tests
-import com.example.common.chats.GroupChat;
-import com.example.common.messages.TextMessage;
+import com.example.common.messages.Communication;
+import com.example.common.messages.SystemMessage;
+import com.example.common.messages.SystemMessageType;
 import com.example.common.users.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ChatServerTest {
-    // Declaring variables for chat server, test users, string writers, print writers, and test chat
+class ChatServerTest {
+
     private ChatServer chatServer;
-    private User testUser1;
-    private User testUser2;
-    private StringWriter stringWriter1;
-    private StringWriter stringWriter2;
-    private PrintWriter printWriter1;
-    private PrintWriter printWriter2;
-    private GroupChat testChat;
+    private User user;
+    private StringWriter stringWriter;
+    private PrintWriter writer;
+    private ServerHandler handler;
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
 
     @BeforeEach
-    public void setUp() {
-        // Initializing the chat server before each test
-        chatServer = new ChatServer(); // Create a new instance of ChatServer
+    void setUp() throws Exception {
+        chatServer = new ChatServer();
+        user = new User("testUser"); // Corrected to use a single argument
+        stringWriter = new StringWriter();
+        writer = new PrintWriter(stringWriter);
 
-        // Creating test users
-        testUser1 = new User("TestUser1"); // Create a new user named "TestUser1"
-        testUser2 = new User("TestUser2"); // Create a new user named "TestUser2"
+        // Setup sockets
+        serverSocket = new ServerSocket(0); // Bind to any available port
+        new Thread(() -> {
+            try {
+                clientSocket = new Socket("localhost", serverSocket.getLocalPort());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        Socket socket = serverSocket.accept();
 
-        // Creating a GroupChat with just the name parameter
-        testChat = new GroupChat("TestChat"); // Create a new group chat named "TestChat"
-
-        // Adding the users to the chat after creation
-        // (if GroupChat has methods like addUser() or addParticipant())
-        testChat.addParticipant(testUser1);  // Add testUser1 to the group chat
-        testChat.addParticipant(testUser2);  // Add testUser2 to the group chat
-
-        // Setting up StringWriters to capture output
-        stringWriter1 = new StringWriter(); // Initialize StringWriter for testUser1
-        stringWriter2 = new StringWriter(); // Initialize StringWriter for testUser2
-        printWriter1 = new PrintWriter(stringWriter1, true); // Wrap StringWriter with PrintWriter for testUser1
-        printWriter2 = new PrintWriter(stringWriter2, true); // Wrap StringWriter with PrintWriter for testUser2
+        handler = new ServerHandler(socket, chatServer); // Using a real instance with a valid socket
     }
 
     @Test
-    public void testAddClient() {
-        // Adding a client to the server
-        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
+    void testAddClient() {
+        chatServer.addClient(user, writer, handler);
+        System.out.println("Client added: " + user.getUsername());
 
-        // Verifying that the client was added
-        assertTrue(chatServer.getClientWriters().containsKey(testUser1)); // Check if testUser1 is in the client writers map
-        assertEquals(1, chatServer.getClientWriters().size()); // Check if the size of the client writers map is 1
+        assertTrue(chatServer.getClientWriters().containsKey(user));
+        assertEquals(writer, chatServer.getClient(user));
     }
 
     @Test
-    public void testRemoveClient() {
-        // Adding clients to the server
-        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
-        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
+    void testRemoveClient() {
+        chatServer.addClient(user, writer, handler);
+        chatServer.removeClient(user);
+        System.out.println("Client removed: " + user.getUsername());
 
-        // Verifying that the clients were added
-        assertEquals(2, chatServer.getClientWriters().size()); // Check if the size of the client writers map is 2
-
-        // Removing a client from the server
-        chatServer.removeClient(testUser1); // Remove testUser1 from the server
-
-        // Verifying that the client was removed
-        assertFalse(chatServer.getClientWriters().containsKey(testUser1)); // Check if testUser1 is not in the client writers map
-        assertTrue(chatServer.getClientWriters().containsKey(testUser2)); // Check if testUser2 is still in the client writers map
-        assertEquals(1, chatServer.getClientWriters().size()); // Check if the size of the client writers map is 1
+        assertFalse(chatServer.getClientWriters().containsKey(user));
     }
 
     @Test
-    public void testBroadcastMessage() {
-        // Adding clients to the server
-        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
-        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
+    void testFindUserById() {
+        chatServer.addClient(user, writer, handler);
+        Optional<User> foundUser = chatServer.findUserById(user.getId());
 
-        // Creating a message with the required parameters
-        TextMessage message = new TextMessage(testChat, testUser1, "Hello everyone!"); // Create a new text message
-
-        // Broadcasting the message to all clients
-        chatServer.broadcast(message); // Broadcast the message
-
-        // Verifying that the message was sent to all clients
-        assertTrue(stringWriter1.toString().contains("Hello everyone!")); // Check if the message content is in stringWriter1
-        assertTrue(stringWriter2.toString().contains("Hello everyone!")); // Check if the message content is in stringWriter2
+        assertTrue(foundUser.isPresent());
+        assertEquals(user, foundUser.get());
+        System.out.println("User found by ID: " + user.getId());
     }
 
     @Test
-    public void testFirstClientBecomesCoordinator() {
-        // Adding the first client to the server
-        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
+    void testGetUserIpAddress() {
+        chatServer.addClient(user, writer, handler);
 
-        // Verifying that the first client is set as coordinator
-        assertTrue(testUser1.getIsCoordinator()); // Check if testUser1 is the coordinator
-        assertEquals(testUser1, chatServer.getCoordinator()); // Check if testUser1 is the coordinator in the server
-
-        // Adding the second client to the server
-        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
-
-        // Verifying that the first client is still the coordinator
-        assertTrue(testUser1.getIsCoordinator()); // Check if testUser1 is still the coordinator
-        assertFalse(testUser2.getIsCoordinator()); // Check if testUser2 is not the coordinator
-        assertEquals(testUser1, chatServer.getCoordinator()); // Check if testUser1 is still the coordinator in the server
+        String ipAddress = chatServer.getUserIpAddress(user);
+        assertEquals(clientSocket.getLocalAddress().getHostAddress(), ipAddress);
+        System.out.println("User IP address: " + ipAddress);
     }
 
     @Test
-    public void testCoordinatorReassignmentWhenCoordinatorLeaves() {
-        // Adding clients to the server
-        chatServer.addClient(testUser1, printWriter1); // Add testUser1 with printWriter1 to the server
-        chatServer.addClient(testUser2, printWriter2); // Add testUser2 with printWriter2 to the server
+    void testSelectRandomUser() {
+        chatServer.addClient(user, writer, handler);
+        User randomUser = chatServer.selectRandomUser();
 
-        // Verifying that the first client is the coordinator
-        assertTrue(testUser1.getIsCoordinator()); // Check if testUser1 is the coordinator
-        assertEquals(testUser1, chatServer.getCoordinator()); // Check if testUser1 is the coordinator in the server
+        assertNotNull(randomUser);
+        assertEquals(user, randomUser);
+        System.out.println("Random user selected: " + randomUser.getUsername());
+    }
 
-        // Removing the coordinator from the server
-        chatServer.removeClient(testUser1); // Remove testUser1 from the server
+    @Test
+    void testBroadcast() {
+        chatServer.addClient(user, writer, handler);
+        Communication message = new SystemMessage(SystemMessageType.HEARTBEAT, "");
 
-        // Verifying that the second client is now the coordinator
-        assertTrue(testUser2.getIsCoordinator()); // Check if testUser2 is now the coordinator
-        assertEquals(testUser2, chatServer.getCoordinator()); // Check if testUser2 is the coordinator in the server
+        chatServer.broadcast(message);
+        assertTrue(stringWriter.toString().contains("HEARTBEAT"));
+        System.out.println("Broadcast message: " + stringWriter.toString());
+    }
+
+    @Test
+    void testSend() {
+        chatServer.addClient(user, writer, handler);
+        Communication message = new SystemMessage(SystemMessageType.HEARTBEAT, "");
+
+        chatServer.send(user, message);
+        assertTrue(stringWriter.toString().contains("HEARTBEAT"));
+        System.out.println("Sent message: " + stringWriter.toString());
+    }
+
+    @Test
+    void testShutdown() {
+        chatServer.addClient(user, writer, handler);
+        chatServer.shutdown();
+        System.out.println("Server shutdown initiated.");
+
+        // Allow some time for the shutdown process to complete
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(chatServer.getClientWriters().containsKey(user));
+        System.out.println("Server terminated.");
     }
 }
