@@ -140,7 +140,9 @@ public class ChatServer {
     public Map<User, PrintWriter> getClientWriters() {
         return clientWriters;
     }
-
+    public Map<User, ServerHandler> getClientHandlers() {
+        return clientHandlers;
+    }
     public CoordinatorManager getCoordinatorManager() {
         return coordinatorManager;
     }
