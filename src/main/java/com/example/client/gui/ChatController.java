@@ -297,8 +297,10 @@ public class ChatController {
                     @Override
                     protected void done() {
                         if (model.getLastRetrievedIP() != null) {
-                            view.showMessageDialog(
-                                    "Username: " + selectedUser.getUsername() + "\nIP Address: " + model.getLastRetrievedIP(),
+                            view.showMessageDialog("Username: " + selectedUser.getUsername() +
+                                    "\nUser ID: " + selectedUser.getId() +
+                                    "\nIs Coordinator: " + selectedUser.getIsCoordinator() +
+                                    "\nIP Address: " + model.getLastRetrievedIP(),
                                     "User Details"
                             );
                             model.setCurrentChat(null); // Reset after showing
