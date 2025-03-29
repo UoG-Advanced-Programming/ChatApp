@@ -160,7 +160,7 @@ public class MessageProcessorTest {
     private static class TestClient extends Client {
         public TestClient() {
             // Fix: Client appears to only take a hostname string, not hostname and port
-            super("localhost:7005"); // Using the port you provided (7005)
+            super("localhost:7005"); // Using the port 7005
         }
 
         // Override methods that might be called during tests
