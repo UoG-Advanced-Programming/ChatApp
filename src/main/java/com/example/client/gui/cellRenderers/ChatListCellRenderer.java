@@ -17,9 +17,6 @@ public class ChatListCellRenderer extends DefaultListCellRenderer {
     private static final Color SELECTED_COLOR = new Color(144, 238, 144); // Light Green for selected chats
     private static final Color INACTIVE_COLOR = Color.GRAY; // Gray for inactive private chats
 
-    private static final ImageIcon PRIVATE_ICON = new ImageIcon("icons/private_chat.png"); // Private chat icon
-    private static final ImageIcon GROUP_ICON = new ImageIcon("icons/group_chat.png"); // Group chat icon
-
     /**
      * Overrides the default rendering method to customize how chat items appear.
      *
@@ -45,15 +42,13 @@ public class ChatListCellRenderer extends DefaultListCellRenderer {
         if (value instanceof PrivateChat privateChat) {
             chatName = privateChat.getName();
             setForeground(privateChat.isActive() ? PRIVATE_CHAT_COLOR : INACTIVE_COLOR);
-            setIcon(PRIVATE_ICON);
         } else if (value instanceof GroupChat groupChat) {
             chatName = groupChat.getName();
             setForeground(GROUP_CHAT_COLOR);
-            setIcon(GROUP_ICON);
         }
 
         // Truncate long chat names to maintain UI consistency
-        String displayedName = truncate(chatName, MAX_NAME_LENGTH);
+        String displayedName = truncate(chatName);
         setText(displayedName);
         setToolTipText(chatName); // Display full chat name on hover
 
@@ -67,19 +62,17 @@ public class ChatListCellRenderer extends DefaultListCellRenderer {
     /**
      * Helper method to truncate long chat names for better UI alignment.
      *
-     * @param name      The original chat name.
-     * @param maxLength The maximum allowed length.
+     * @param name The original chat name.
      * @return The truncated chat name with ellipsis if necessary.
      */
-    private String truncate(String name, int maxLength) {
-        return (name.length() > maxLength) ? name.substring(0, maxLength - 3) + "..." : name;
+    private String truncate(String name) {
+        return (name.length() > ChatListCellRenderer.MAX_NAME_LENGTH) ? name.substring(0, ChatListCellRenderer.MAX_NAME_LENGTH - 3) + "..." : name;
     }
 
     /**
      * Custom panel that renders chat items with rounded backgrounds and gradient effects.
      */
     private static class RoundedPanel extends JPanel {
-        private final JComponent content;
         private final boolean isSelected;
 
         /**
@@ -89,7 +82,6 @@ public class ChatListCellRenderer extends DefaultListCellRenderer {
          * @param isSelected Whether the chat item is currently selected.
          */
         public RoundedPanel(JComponent content, boolean isSelected) {
-            this.content = content;
             this.isSelected = isSelected;
             setLayout(new BorderLayout());
             add(content, BorderLayout.CENTER);
