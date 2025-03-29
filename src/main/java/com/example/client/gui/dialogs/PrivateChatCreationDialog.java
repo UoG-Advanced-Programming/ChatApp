@@ -7,10 +7,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
 
+/**
+ * The PrivateChatCreationDialog class is a dialog for selecting a user to start a private chat with.
+ */
 public class PrivateChatCreationDialog extends JDialog {
-    private final JList<User> userList;
-    private boolean confirmed = false;
+    private final JList<User> userList; // The list of users to select from
+    private boolean confirmed = false; // Flag to indicate if the dialog was confirmed
 
+    /**
+     * Constructs a PrivateChatCreationDialog instance.
+     *
+     * @param parent      The parent frame of the dialog
+     * @param users       The set of users to select from
+     * @param currentUser The current user (to be excluded from the selection list)
+     */
     public PrivateChatCreationDialog(Frame parent, Set<User> users, User currentUser) {
         super(parent, "Select User", true);
         setSize(300, 200);
@@ -36,11 +46,11 @@ public class PrivateChatCreationDialog extends JDialog {
         JButton okButton = new JButton("OK");
         okButton.addActionListener(e -> {
             confirmed = true;
-            dispose();
+            dispose(); // Close the dialog
         });
 
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(e -> dispose());
+        cancelButton.addActionListener(e -> dispose()); // Close the dialog without confirmation
 
         // Add components to the dialog
         JPanel buttonPanel = new JPanel();
@@ -58,10 +68,10 @@ public class PrivateChatCreationDialog extends JDialog {
      * @return The selected user, or null if the dialog was canceled.
      */
     public User getSelectedUser() {
-        setVisible(true);
+        setVisible(true); // Show the dialog
         if (confirmed) {
-            return userList.getSelectedValue();
+            return userList.getSelectedValue(); // Return the selected user if confirmed
         }
-        return null;
+        return null; // Return null if the dialog was canceled
     }
 }

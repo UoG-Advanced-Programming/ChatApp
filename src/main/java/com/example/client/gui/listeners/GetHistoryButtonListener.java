@@ -8,16 +8,30 @@ import java.awt.event.ActionListener;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * The GetHistoryButtonListener class listens for get history button actions and handles
+ * the saving of chat history to a file in the chat application.
+ */
 public class GetHistoryButtonListener implements ActionListener {
-    private final Controller controller;
+    private final Controller controller; // The controller managing the application
 
+    /**
+     * Constructs a GetHistoryButtonListener instance.
+     *
+     * @param controller The controller managing the application
+     */
     public GetHistoryButtonListener(Controller controller) {
         this.controller = controller;
     }
 
+    /**
+     * Handles the action performed event when the get history button is clicked.
+     *
+     * @param e The action event
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
-        Chat currentChat = controller.getModel().getCurrentChat();
+        Chat currentChat = controller.getModel().getCurrentChat(); // Get the current chat
         // Retrieve chat history
         String chatHistory = controller.getModel().getFormattedChatHistory(currentChat);
 
