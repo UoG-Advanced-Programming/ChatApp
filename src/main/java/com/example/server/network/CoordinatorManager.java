@@ -36,8 +36,7 @@ public class CoordinatorManager {
             SystemMessage systemMessage = new SystemMessage(SystemMessageType.COORDINATOR_ID_TRANSITION, getCoordinator().getId());
             server.broadcast(systemMessage);
         } else {
-            SystemMessage systemMessage = new SystemMessage(SystemMessageType.COORDINATOR_ID_TRANSITION, null);
-            server.broadcast(systemMessage);
+            setCoordinator(null);
         }
 
     }
@@ -57,6 +56,8 @@ public class CoordinatorManager {
             coordinator = newCoordinator;
             coordinator.setIsCoordinator(true);
             System.out.println("COORDINATOR: " + coordinator.getUsername() + " is now the coordinator");
+        } else {
+            coordinator = null;
         }
     }
 
