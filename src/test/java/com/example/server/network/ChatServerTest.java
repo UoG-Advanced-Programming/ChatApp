@@ -28,7 +28,7 @@ class ChatServerTest {
     @BeforeEach
     void setUp() throws Exception {
         chatServer = new ChatServer();
-        user = new User("testUser"); // Corrected to use a single argument
+        user = new User("testUser");
         stringWriter = new StringWriter();
         writer = new PrintWriter(stringWriter);
 
@@ -75,12 +75,13 @@ class ChatServerTest {
     }
 
     @Test
-    void testGetUserIpAddress() {
+    void testGetUserSocket() {
         chatServer.addClient(user, writer, handler);
 
-        String ipAddress = chatServer.getUserIpAddress(user);
-        assertEquals(clientSocket.getLocalAddress().getHostAddress(), ipAddress);
-        System.out.println("User IP address: " + ipAddress);
+        String actualSocketAddress = chatServer.getUserSocket(user);
+        String expectedSocketAddress = clientSocket.getLocalSocketAddress().toString().replaceFirst("/", "");
+        assertEquals(expectedSocketAddress, actualSocketAddress);
+        System.out.println("User socket address: " + actualSocketAddress);
     }
 
     @Test
