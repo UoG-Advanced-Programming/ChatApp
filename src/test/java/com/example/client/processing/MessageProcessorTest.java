@@ -1,6 +1,6 @@
 package com.example.client.processing;
 
-// Import statements for various classes used in the tests
+// All the stuff we need for testing
 import com.example.client.gui.ChatController;
 import com.example.client.gui.ChatModel;
 import com.example.client.gui.ChatView;
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MessageProcessorTest {
-    // Declaring variables for message processors, controller, test users, and chats
+    // The main objects we're testing plus some test data
     private ClientTextMessageProcessor textMessageProcessor;
     private ClientUserUpdateMessageProcessor userUpdateProcessor;
     private TestChatController controller;
@@ -27,229 +27,227 @@ public class MessageProcessorTest {
     private GroupChat testGroupChat;
     private PrivateChat testPrivateChat;
 
-    // Test implementations of dependencies
+    // Mock objects to avoid dealing with real GUI/network
     private ChatModel mockModel;
     private ChatView mockView;
     private ChatClient mockClient;
 
     @BeforeEach
     public void setUp() {
-        // Creating test users before each test since they're needed as dependencies
-        testUser = new User("TestUser"); // Create a new user named "TestUser"
-        testUser2 = new User("TestUser2"); // Create a new user named "TestUser2"
+        // Create some dummy users for our tests
+        testUser = new User("TestUser");
+        testUser2 = new User("TestUser2");
 
-        // Initializing message processors for text messages and user updates
-        textMessageProcessor = new ClientTextMessageProcessor(); // Initialize text message processor
-        userUpdateProcessor = new ClientUserUpdateMessageProcessor(); // Initialize user update message processor
+        // Set up the message processors - these are what we're actually testing
+        textMessageProcessor = new ClientTextMessageProcessor();
+        userUpdateProcessor = new ClientUserUpdateMessageProcessor();
 
-        // Creating mock dependencies for ChatController with properly initialized values
-        mockModel = new TestChatModel(testUser); // Create a mock ChatModel with testUser
-        mockView = new TestChatView(); // Create a mock ChatView
-        mockClient = new TestChatClient(); // Create a mock ChatClient
+        // Need to create fake versions of all the dependencies
+        mockModel = new TestChatModel(testUser);
+        mockView = new TestChatView();  // This handles UI stuff we don't care about
+        mockClient = new TestChatClient();  // Fake network client so we don't need a real server
 
-        // Creating the controller with mock dependencies
-        controller = new TestChatController(mockModel, mockView, mockClient); // Initialize the ChatController with mocks
+        // Wire everything together with our test controller
+        controller = new TestChatController(mockModel, mockView, mockClient);
 
-        // Creating a test group chat
-        testGroupChat = new GroupChat("TestGroupChat"); // Create a group chat named "TestGroupChat"
+        // Make a test group chat for our messages
+        testGroupChat = new GroupChat("TestGroupChat");
 
-        // Creating a private chat and adding participants explicitly
-        testPrivateChat = new PrivateChat("TestPrivateChat"); // Create a private chat named "TestPrivateChat"
-        testPrivateChat.addParticipant(testUser); // Add testUser to the private chat
-        testPrivateChat.addParticipant(testUser2); // Add testUser2 to the private chat
+        // We also need a private chat for DM tests
+        testPrivateChat = new PrivateChat("TestPrivateChat");
+        testPrivateChat.addParticipant(testUser);  // Add both users to the chat
+        testPrivateChat.addParticipant(testUser2);  // so they can talk to each other
     }
 
     @Test
     public void testGroupChatTextMessageProcessing() {
-        // Creating a test message for a group chat
-        TextMessage message = new TextMessage(testGroupChat, testUser, "Hello, world!"); // Create a new text message
+        // Send a message to a group chat
+        TextMessage message = new TextMessage(testGroupChat, testUser, "Hello, world!");
 
-        // Processing the message
-        textMessageProcessor.processMessage(message, controller); // Process the created message
+        // Run the processor on it
+        textMessageProcessor.processMessage(message, controller);
 
-        // Verifying controller interactions
-        assertTrue(controller.hasChatBeenChecked(), "hasChat method should be called"); // Check if hasChat method was called
-        assertTrue(controller.hasChatBeenAdded(), "addChat method should be called"); // Check if addChat method was called
-        assertTrue(controller.hasMessageBeenShown(), "showMessage method should be called"); // Check if showMessage method was called
-        assertEquals(message, controller.getLastMessageShown(), "The message should be passed to showMessage"); // Verify the message was passed to showMessage
+        // Make sure the controller did the right things
+        assertTrue(controller.hasChatBeenChecked(), "hasChat method should be called");
+        assertTrue(controller.hasChatBeenAdded(), "addChat method should be called");
+        assertTrue(controller.hasMessageBeenShown(), "showMessage method should be called");
+        assertEquals(message, controller.getLastMessageShown(), "The message should be passed to showMessage");
     }
 
     @Test
     public void testPrivateChatTextMessageProcessing() {
-        // Creating a test message for a private chat
-        TextMessage message = new TextMessage(testPrivateChat, testUser, "Hello, testing private chat!"); // Create a new text message for private chat
+        // DM test - create a private message
+        TextMessage message = new TextMessage(testPrivateChat, testUser, "Hello, testing private chat!");
 
-        // Processing the message
-        textMessageProcessor.processMessage(message, controller); // Process the created message
+        // Process the DM
+        textMessageProcessor.processMessage(message, controller);
 
-        // Verifying controller interactions
-        assertTrue(controller.hasChatBeenChecked(), "hasChat method should be called"); // Check if hasChat method was called
-        assertTrue(controller.hasChatBeenAdded(), "addChat method should be called"); // Check if addChat method was called
-        assertTrue(controller.hasMessageBeenShown(), "showMessage method should be called"); // Check if showMessage method was called
-        assertEquals(message, controller.getLastMessageShown(), "The message should be passed to showMessage"); // Verify the message was passed to showMessage
+        // Did everything happen correctly?
+        assertTrue(controller.hasChatBeenChecked(), "hasChat method should be called");
+        assertTrue(controller.hasChatBeenAdded(), "addChat method should be called");
+        assertTrue(controller.hasMessageBeenShown(), "showMessage method should be called");
+        assertEquals(message, controller.getLastMessageShown(), "The message should be passed to showMessage");
 
-        // Verifying the private chat was renamed to the sender's username
-        assertEquals(testUser.getUsername(), testPrivateChat.getName(), "Private chat should be renamed to sender's username"); // Check if the private chat was renamed
+        // Special check for private chats - they should show the sender's name
+        assertEquals(testUser.getUsername(), testPrivateChat.getName(), "Private chat should be renamed to sender's username");
     }
 
     @Test
     public void testExistingChatTextMessageProcessing() {
-        // Setting up the controller to indicate the chat already exists
-        controller.setHasChat(true); // Set the controller to indicate the chat already exists
+        // For this test, pretend the chat already exists in the UI
+        controller.setHasChat(true);
 
-        // Creating a test message for an existing chat
-        TextMessage message = new TextMessage(testGroupChat, testUser, "Hello, existing chat!"); // Create a new text message for an existing chat
+        // Send a message to an existing chat
+        TextMessage message = new TextMessage(testGroupChat, testUser, "Hello, existing chat!");
 
-        // Processing the message
-        textMessageProcessor.processMessage(message, controller); // Process the created message
+        // Process it
+        textMessageProcessor.processMessage(message, controller);
 
-        // Verifying controller interactions
-        assertTrue(controller.hasChatBeenChecked(), "hasChat method should be called"); // Check if hasChat method was called
-        assertFalse(controller.hasChatBeenAdded(), "addChat method should not be called for existing chat"); // Check if addChat method was not called for existing chat
-        assertTrue(controller.hasMessageBeenShown(), "showMessage method should be called"); // Check if showMessage method was called
+        // Should check if chat exists, NOT add it again, and show the message
+        assertTrue(controller.hasChatBeenChecked(), "hasChat method should be called");
+        assertFalse(controller.hasChatBeenAdded(), "addChat method should not be called for existing chat");
+        assertTrue(controller.hasMessageBeenShown(), "showMessage method should be called");
     }
 
     @Test
     public void testUserOnlineMessageProcessing() {
-        // Creating a user status update message
-        UserUpdateMessage message = new UserUpdateMessage(testUser, UserStatus.ONLINE); // Create a new user status update message
+        // Test what happens when someone comes online
+        UserUpdateMessage message = new UserUpdateMessage(testUser, UserStatus.ONLINE);
 
-        // Processing the message
-        userUpdateProcessor.processMessage(message, controller); // Process the created status update message
+        // Process the status update
+        userUpdateProcessor.processMessage(message, controller);
 
-        // Verifying controller interactions
-        assertTrue(controller.hasUserBeenAdded(), "addActiveUser method should be called"); // Check if addActiveUser method was called
-        assertFalse(controller.hasUserBeenRemoved(), "removeActiveUser method should not be called"); // Check if removeActiveUser method was not called
-        assertEquals(testUser, controller.getLastUserAdded(), "The user should be passed to addActiveUser"); // Verify the user was passed to addActiveUser
+        // Should add the user to the active users list
+        assertTrue(controller.hasUserBeenAdded(), "addActiveUser method should be called");
+        assertFalse(controller.hasUserBeenRemoved(), "removeActiveUser method should not be called");
+        assertEquals(testUser, controller.getLastUserAdded(), "The user should be passed to addActiveUser");
     }
 
     @Test
     public void testUserOfflineMessageProcessing() {
-        // Creating a user status update message
-        UserUpdateMessage message = new UserUpdateMessage(testUser, UserStatus.OFFLINE); // Create a new user status update message
+        // Now test what happens when they go offline
+        UserUpdateMessage message = new UserUpdateMessage(testUser, UserStatus.OFFLINE);
 
-        // Processing the message
-        userUpdateProcessor.processMessage(message, controller); // Process the created status update message
+        // Process the offline status
+        userUpdateProcessor.processMessage(message, controller);
 
-        // Verifying controller interactions
-        assertTrue(controller.hasUserBeenRemoved(), "removeActiveUser method should be called"); // Check if removeActiveUser method was called
-        assertFalse(controller.hasUserBeenAdded(), "addActiveUser method should not be called"); // Check if addActiveUser method was not called
-        assertEquals(testUser, controller.getLastUserRemoved(), "The user should be passed to removeActiveUser"); // Verify the user was passed to removeActiveUser
+        // Should remove the user from the active list
+        assertTrue(controller.hasUserBeenRemoved(), "removeActiveUser method should be called");
+        assertFalse(controller.hasUserBeenAdded(), "addActiveUser method should not be called");
+        assertEquals(testUser, controller.getLastUserRemoved(), "The user should be passed to removeActiveUser");
     }
 
-    // Test implementation of ChatModel
+    // Fake version of ChatModel - doesn't need to do much for our tests
     private static class TestChatModel extends ChatModel {
         public TestChatModel(User currentUser) {
-            super(currentUser); // Call the parent constructor with currentUser
+            super(currentUser);  // Just pass the user to the real constructor
         }
-
-        // Override any methods that might be called during tests
+        // We're not testing ChatModel so we don't need to override anything
     }
 
-    // Test implementation of ChatView
+    // Fake view that doesn't try to create actual UI components
     private static class TestChatView extends ChatView {
-        // Override constructor if needed
         public TestChatView() {
-            // No call to super if it requires parameters
+            // Don't call super() because it probably creates real UI stuff
         }
-
-        // Implement any necessary methods from ChatView
+        // No UI needed for these tests
     }
 
-    // Test implementation of ChatClient
+    // Fake client that doesn't try to connect to a real server
     private static class TestChatClient extends ChatClient {
         public TestChatClient() {
-            // Fix: ChatClient appears to only take a hostname string, not hostname and port
-            super("localhost:7005"); // Using the port you provided (7005)
+            super("localhost:7005");  // Need to give it something but we won't use it
         }
 
-        // Override methods that might be called during tests
         @Override
         public void connectToServer() {
-            // Do nothing in test
+            // Do nothing - don't want to actually connect
         }
     }
 
-    // Custom test implementation of ChatController
+    // This is our special test controller that lets us track method calls
     private static class TestChatController extends ChatController {
+        // Flags to track which methods were called
         private boolean chatChecked = false;
         private boolean chatAdded = false;
         private boolean messageShown = false;
         private boolean userAdded = false;
         private boolean userRemoved = false;
-        private boolean hasChat = false;
+        private boolean hasChat = false;  // This one controls what hasChat() returns
 
+        // Keep the last objects passed to various methods so we can check them
         private TextMessage lastMessageShown = null;
         private User lastUserAdded = null;
         private User lastUserRemoved = null;
 
         public TestChatController(ChatModel model, ChatView view, ChatClient client) {
-            super(model, view, client); // Call the parent constructor with model, view, and client
+            super(model, view, client);
         }
 
         @Override
         public boolean hasChat(Chat chat) {
-            chatChecked = true; // Set chatChecked to true when this method is called
-            return hasChat; // Return the hasChat value
+            chatChecked = true;  // Remember that this method was called
+            return hasChat;      // Return whatever value we set for testing
         }
 
         public void setHasChat(boolean hasChat) {
-            this.hasChat = hasChat; // Set the hasChat value
+            this.hasChat = hasChat;  // Let tests control what hasChat() returns
         }
 
         @Override
         public void addChat(Chat chat) {
-            chatAdded = true; // Set chatAdded to true when this method is called
+            chatAdded = true;  // Remember this method was called
         }
 
         @Override
         public void showMessage(TextMessage message) {
-            messageShown = true; // Set messageShown to true when this method is called
-            lastMessageShown = message; // Store the last message shown
+            messageShown = true;      // Remember this method was called
+            lastMessageShown = message;  // And save the message that was passed in
         }
 
         @Override
         public void addActiveUser(User user) {
-            userAdded = true; // Set userAdded to true when this method is called
-            lastUserAdded = user; // Store the last user added
+            userAdded = true;     // Remember this method was called
+            lastUserAdded = user;    // Save the user that was passed in
         }
 
         @Override
         public void removeActiveUser(User user) {
-            userRemoved = true; // Set userRemoved to true when this method is called
-            lastUserRemoved = user; // Store the last user removed
+            userRemoved = true;     // Remember this method was called
+            lastUserRemoved = user;    // Save the user that was passed in
         }
 
+        // Getter methods so tests can check what happened
         public boolean hasChatBeenChecked() {
-            return chatChecked; // Return the chatChecked value
+            return chatChecked;
         }
 
         public boolean hasChatBeenAdded() {
-            return chatAdded; // Return the chatAdded value
+            return chatAdded;
         }
 
         public boolean hasMessageBeenShown() {
-            return messageShown; // Return the messageShown value
+            return messageShown;
         }
 
         public boolean hasUserBeenAdded() {
-            return userAdded; // Return the userAdded value
+            return userAdded;
         }
 
         public boolean hasUserBeenRemoved() {
-            return userRemoved; // Return the userRemoved value
+            return userRemoved;
         }
 
         public TextMessage getLastMessageShown() {
-            return lastMessageShown; // Return the last message shown
+            return lastMessageShown;
         }
 
         public User getLastUserAdded() {
-            return lastUserAdded; // Return the last user added
+            return lastUserAdded;
         }
 
         public User getLastUserRemoved() {
-            return lastUserRemoved; // Return the last user removed
+            return lastUserRemoved;
         }
     }
 }

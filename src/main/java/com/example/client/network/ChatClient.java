@@ -183,6 +183,10 @@ public class ChatClient {
         this.socket = socket;
     }
 
+    public long getLastHeartbeatTime() {
+        return lastHeartbeatTime;
+    }
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Pass the server IP as the sole command-line argument");
