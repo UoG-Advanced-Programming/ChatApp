@@ -99,7 +99,11 @@ public class Client {
      */
     public void start() {
         String username = promptForCredentials(); // Prompt for user credentials
-        assert username != null; // Ensure username is not null
+        if (username == null) {
+            System.out.println("User canceled the login process.");
+            disconnect(); // Disconnect the client if user cancels
+            return; // Exit the start method
+        }
         user = new User(username); // Create a new user
         UserUpdateMessage message = new UserUpdateMessage(user, UserStatus.ONLINE); // Create a user update message
         send(message); // Send the user update message
