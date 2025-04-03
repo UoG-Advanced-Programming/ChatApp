@@ -153,7 +153,6 @@ public class MessageProcessorTest {
             // No call to super if it requires parameters
         }
 
-        // Implement any necessary methods from View
     }
 
     // Test implementation of Client
