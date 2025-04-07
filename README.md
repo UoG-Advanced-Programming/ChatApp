@@ -2,6 +2,30 @@
 
 A Java Swing-Based Chat Application developed as part of the Advanced Programming course at the University of Greenwich.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [System Workflow](#system-workflow)
+  - [User Interactions](#user-interactions)
+  - [GUI Components](#gui-components)
+  - [MVC Design Pattern](#mvc-design-pattern)
+  - [Server-Client Communication Using Serialization](#server-client-communication-using-serialization)
+- [Sequence Diagram of Server-Client Communication Using Serialization](#sequence-diagram-of-server-client-communication-using-serialization)
+- [UML Diagram](#uml-diagram)
+- [Features](#features)
+- [Technologies](#technologies)
+- [Design Patterns](#design-patterns)
+  - [Adapter](#adapter)
+  - [Factory Method Pattern](#factory-method-pattern)
+  - [MVC (Model-View-Controller)](#mvc-model-view-controller)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Dependencies](#dependencies)
+  - [Steps to Set Up and Run the ChatApp Project](#steps-to-set-up-and-run-the-chatapp-project)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+
+
 ## Overview
 
 ChatApp is a desktop chat application built using Java Swing that allows users to communicate in real-time. The application provides a user-friendly interface for text-based conversations with features commonly found in modern chat applications.
@@ -423,6 +447,17 @@ Please refere to [MVC Design Pattern](#mvc-design-pattern) explained earlier.
 - Java Development Kit (JDK) 23 or higher
 - Maven 3.6+ (for dependency management and building)
 
+### Dependencies
+
+The project uses the following main dependencies:
+
+- **Gson (2.12.1):** For JSON processing
+- **Gson-extras (0.2.2):** Additional Gson functionality
+- **JUnit 5 (5.9.2):** For unit testing
+- **Mockito (5.3.1):** For mocking in tests
+
+All dependencies are managed through Maven and specified in the pom.xml file.
+
 ### Steps to Set Up and Run the ChatApp Project
 
 1. Clone the Repository
@@ -461,16 +496,6 @@ In a new terminal window or tab, execute the client application with the followi
    ```bash
    mvn exec:java -Dexec.mainClass="com.example.client.network.Client" -Dexec.args="localhost"
    ```
-## Dependencies
-
-The project uses the following main dependencies:
-
-- **Gson (2.12.1):** For JSON processing
-- **Gson-extras (0.2.2):** Additional Gson functionality
-- **JUnit 5 (5.9.2):** For unit testing
-- **Mockito (5.3.1):** For mocking in tests
-
-All dependencies are managed through Maven and specified in the pom.xml file.
 
 ## Usage
 
