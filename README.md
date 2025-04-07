@@ -316,29 +316,44 @@ In the ChatApp, communication between the client and server involves serializing
 - Java Development Kit (JDK) 23 or higher
 - Maven 3.6+ (for dependency management and building)
 
-### Installation
+### Steps to Set Up and Run the ChatApp Project
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/UoG-Advanced-Programming/ChatApp.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd ChatApp
-    ```
-3. Build the application with Maven:
-    ```bash
+1. Clone the Repository
+
+Start by cloning the project repository from GitHub:
+   ```bash
+   git clone https://github.com/UoG-Advanced-Programming/ChatApp.git
+   ```
+2. Navigate to the Project Directory
+
+Change your working directory to the cloned project:
+   ```bash
+   cd ChatApp
+   ```
+3. Build the Application with Maven
+
+Use Maven to build the application and install its dependencies:
+   ```bash
    mvn clean install
    ```
-4. Compile the application:
-    ```bash
-    javac -d bin src/*.java
-    ```
-5. Run the application:
-    ```bash
-    java -cp bin ChatApp
-    ```
+4. Compile the Application with Maven
 
+Compile the application using Maven:
+   ```bash
+   mvn compile
+   ```
+5. Run the Server
+
+Start the server application using the following command:
+   ```bash
+   /Applications/IntelliJ\ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn exec:java -Dexec.mainClass="com.example.server.network.Server"
+   ```
+6. Run the Client
+
+In a new terminal window or tab, execute the client application with the following command, passing localhost as an argument:
+   ```bash
+   /Applications/IntelliJ\ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn exec:java -Dexec.mainClass="com.example.client.network.Client" -Dexec.args="localhost"
+   ```
 ## Dependencies
 
 The project uses the following main dependencies:
