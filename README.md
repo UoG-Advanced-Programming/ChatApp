@@ -128,103 +128,168 @@ In the ChatApp, communication between the client and server involves serializing
 
    ```mermaid
    classDiagram
-       class Communication {
-           <<abstract>>
-           String messageId
-           LocalDateTime timestamp
-           CommunicationType type
-           +getMessageId(): String
-           +setMessageId(String messageId)
-           +getTimestamp(): LocalDateTime
-           +setTimestamp(LocalDateTime timestamp)
-           +getType(): CommunicationType
-           +setType(CommunicationType type)
-       }
-   
-       class TextMessage {
-           Chat chat
-           User sender
-           String content
-           +getChat(): Chat
-           +setChat(Chat chat)
-           +getSender(): User
-           +setSender(User sender)
-           +getContent(): String
-           +setContent(String content)
-       }
-   
-       class SystemMessage {
-           SystemMessageType systemType
-           String content
-           +getSystemType(): SystemMessageType
-           +getContent(): String
-       }
-   
-       class UserUpdateMessage {
-           User user
-           UserStatus status
-           +getUser(): User
-           +setUser(User user)
-           +getStatus(): UserStatus
-           +setStatus(UserStatus status)
-       }
-   
-       class User {
-           String id
-           String username
-           LocalDateTime createdAt
-           boolean isCoordinator
-           +getId(): String
-           +setId(String id)
-           +getUsername(): String
-           +setUsername(String username)
-           +getCreatedAt(): LocalDateTime
-           +setCreatedAt(LocalDateTime createdAt)
-           +getIsCoordinator(): boolean
-           +setIsCoordinator(boolean isCoordinator)
-       }
-   
+       %% Abstract Classes
        class Chat {
            <<abstract>>
-           String id
-           String name
-           LocalDateTime timestamp
-           Set<User> participants
-           +getId(): String
-           +setId(String id)
-           +getName(): String
-           +setName(String name)
-           +getTimestamp(): LocalDateTime
-           +setTimestamp(LocalDateTime timestamp)
-           +addParticipant(User participant)
-           +removeParticipant(User participant)
-           +getParticipants(): Set<User>
-           +displayChatInfo()
-           +getType(): ChatType
+           # String id
+           # String name
+           # LocalDateTime timestamp
+           # Set~User~ participants
+           + Chat(String name)
+           + String getId()
+           + void setId(String id)
+           + String getName()
+           + void setName(String name)
+           + LocalDateTime getTimestamp()
+           + void setTimestamp(LocalDateTime timestamp)
+           + void addParticipant(User participant)
+           + void removeParticipant(User participant)
+           + Set~User~ getParticipants()
        }
    
+       class Communication {
+           <<abstract>>
+           # String messageId
+           # LocalDateTime timestamp
+           # CommunicationType type
+           + Communication(CommunicationType type)
+           + String getMessageId()
+           + void setMessageId(String messageId)
+           + LocalDateTime getTimestamp()
+           + void setTimestamp(LocalDateTime timestamp)
+           + CommunicationType getType()
+           + void setType(CommunicationType type)
+       }
+   
+       %% Concrete Classes
        class PrivateChat {
-           boolean active
-           +isActive(): boolean
-           +setActive(boolean active)
-           +displayChatInfo()
-           +getType(): ChatType
+           - boolean active
+           + PrivateChat(String chatName)
+           + boolean isActive()
+           + void setActive(boolean active)
+           + void displayChatInfo()
+           + ChatType getType()
        }
    
        class GroupChat {
-           +displayChatInfo()
-           +getType(): ChatType
+           + GroupChat(String chatName)
+           + void displayChatInfo()
+           + ChatType getType()
        }
    
-       Communication <|-- TextMessage
-       Communication <|-- SystemMessage
-       Communication <|-- UserUpdateMessage
+       class TextMessage {
+           - Chat chat
+           - User sender
+           - String content
+           + TextMessage(Chat chat, User sender, String content)
+           + Chat getChat()
+           + void setChat(Chat chat)
+           + User getSender()
+           + void setSender(User sender)
+           + String getContent()
+           + void setContent(String content)
+       }
+   
+       class UserUpdateMessage {
+           - User user
+           - UserStatus status
+           + UserUpdateMessage(User user, UserStatus status)
+           + User getUser()
+           + void setUser(User user)
+           + UserStatus getStatus()
+           + void setStatus(UserStatus status)
+       }
+   
+       class SystemMessage {
+           - String content
+           - SystemMessageType systemMessageType
+           + SystemMessage(SystemMessageType systemMessageType, String content)
+           + String getContent()
+           + SystemMessageType getSystemType()
+       }
+   
+       class User {
+           - String id
+           - String username
+           - LocalDateTime createdAt
+           - boolean isCoordinator
+           + User(String username)
+           + String getId()
+           + void setId(String id)
+           + String getUsername()
+           + void setUsername(String username)
+           + LocalDateTime getCreatedAt()
+           + void setCreatedAt(LocalDateTime createdAt)
+           + boolean getIsCoordinator()
+           + void setIsCoordinator(boolean isCoordinator)
+       }
+   
+       %% Utility Classes
+       class IDGenerator {
+           <<utility>>
+           + String generateUUID()
+       }
+   
+       class MessageSerializer {
+           <<utility>>
+           - static Gson gson
+           + static String serialize(Communication message)
+           + static Communication deserialize(String json)
+       }
+   
+       %% Enums
+       class ChatType {
+           <<enumeration>>
+           + PRIVATE
+           + GROUP
+       }
+   
+       class CommunicationType {
+           <<enumeration>>
+           + TEXT
+           + USER_UPDATE
+           + SYSTEM
+       }
+   
+       class UserStatus {
+           <<enumeration>>
+           + ONLINE
+           + OFFLINE
+       }
+   
+       class SystemMessageType {
+           <<enumeration>>
+           + ID_TRANSITION
+           + IP_TRANSITION
+           + IP_REQUEST
+           + COORDINATOR_ID_TRANSITION
+           + SERVER_SHUTDOWN
+           + HEARTBEAT
+       }
+   
+       %% Inheritance
        Chat <|-- PrivateChat
        Chat <|-- GroupChat
-       TextMessage --> Chat
-       TextMessage --> User
-       UserUpdateMessage --> User
-       Chat --> User
+       Communication <|-- TextMessage
+       Communication <|-- UserUpdateMessage
+       Communication <|-- SystemMessage
+   
+       %% Associations & Dependencies
+       Chat "1" o-- "*" User : participants
+       TextMessage --> Chat : references
+       TextMessage --> User : sender
+       UserUpdateMessage --> User : user
+       UserUpdateMessage --> UserStatus : status
+       SystemMessage --> SystemMessageType : systemType
+       Communication --> CommunicationType : type
+       PrivateChat --> ChatType : type
+       GroupChat --> ChatType : type
+   
+       %% Utility Usage
+       Chat ..> IDGenerator : uses
+       Communication ..> IDGenerator : uses
+       User ..> IDGenerator : uses
+       MessageSerializer ..> Communication : (de)serializes
    ```
 
 ## Features
