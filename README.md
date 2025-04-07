@@ -368,16 +368,10 @@ All dependencies are managed through Maven and specified in the pom.xml file.
 ## Usage
 
 - Launch the application
-- Create a new account or log in with existing credentials
-- Add contacts to start chatting
-- Select a contact and start sending messages
+- Enter your username
 - Enjoy real-time communication!
 
 ## Project Structure
 
 - `src/main/java/` - Source code files
 - `src/test/java/` - Test source files
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
