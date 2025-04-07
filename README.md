@@ -309,6 +309,113 @@ In the ChatApp, communication between the client and server involves serializing
 - **Multithreading**: For handling concurrent connections
 - **JUnit 5 & Mockito**: For unit testing
 
+## Design Patterns
+
+The ChatApp implementation leverages several design patterns to enhance maintainability, readability, and extensibility of the codebase.
+
+### Adapter
+
+In this chat application, the Adapter Pattern is used to enable compatibility between custom objects and the JSON serialization/deserialization process powered by Gson. This is particularly important when dealing with polymorphic types and non-standard Java types like LocalDateTime.
+
+#### Where It’s Used
+
+The Adapter Pattern is implemented in the `MessageSerializer` class to:
+
+- Adapt different message and chat types for polymorphic deserialization.
+- Serialize and deserialize LocalDateTime, which Gson does not support by default.
+
+#### How It Works
+
+1. RuntimeTypeAdapterFactory (for polymorphism)
+Gson’s `RuntimeTypeAdapterFactory` is used as an adapter to preserve the actual runtime type of abstract base classes like `Communication` and `Chat`. This allows Gson to reconstruct the correct subclass during deserialization based on the `type` field.
+
+   ```java
+   RuntimeTypeAdapterFactory<Communication> communicationAdapter =
+       RuntimeTypeAdapterFactory.of(Communication.class, "type")
+           .registerSubtype(TextMessage.class, CommunicationType.TEXT.name())
+           .registerSubtype(UserUpdateMessage.class, CommunicationType.USER_UPDATE.name())
+           .registerSubtype(SystemMessage.class, CommunicationType.SYSTEM.name());
+   ```
+   
+Without this adapter, Gson would not be able to properly deserialize JSON back into the appropriate subclass.
+
+2. Custom Adapter for LocalDateTime
+Java’s `LocalDateTime` does not serialize/deserialize out of the box with Gson. A custom adapter is used to bridge this incompatibility.
+
+   ```java
+   private static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+       private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+   
+       @Override
+       public JsonElement serialize(LocalDateTime localDateTime, Type type, JsonSerializationContext context) {
+           return new JsonPrimitive(localDateTime.format(formatter));
+       }
+   
+       @Override
+       public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext context) {
+           return LocalDateTime.parse(json.getAsString(), formatter);
+       }
+   }
+   ```
+   
+This adapter converts LocalDateTime to a standard string format for JSON and back again when reading.
+
+#### Benefits
+
+- **Interoperability**: Smooth integration between Java-specific types and JSON.
+- **Polymorphism Support**: Preserves the actual object type during serialization.
+- **Cleaner Serialization Logic**: Encapsulates complex logic away from main business code.
+
+### Factory Method Pattern
+
+In this chat application, the Factory Method design pattern is used to decouple the message handling logic from the core networking code. This approach improves scalability and maintainability by allowing new message types to be easily introduced without modifying the existing control flow.
+
+#### Where It’s Used
+
+The Factory Method pattern is implemented in both the client and server components through `ClientMessageProcessorFactory` and `ServerMessageProcessorFactory`, respectively.
+
+#### Why Factory Method?
+
+Each message type (e.g., TEXT, USER_UPDATE, SYSTEM) requires a different handler logic. Instead of using if-else or switch statements scattered throughout the codebase, we centralize message creation using factories that return the appropriate MessageProcessor subclass based on the message type.
+
+#### Client Side
+
+   ```java
+   public void processMessage(String jsonMessage) {
+       Communication message = MessageSerializer.deserialize(jsonMessage);
+       ClientMessageProcessor processor = ClientMessageProcessorFactory.getProcessor(message.getType());
+       processor.processMessage(message, controller);
+   }
+   ```
+
+- `ClientMessageProcessor` is an abstract class.
+- Subclasses like `ClientTextMessageProcessor`, `ClientSystemMessageProcessor`, and `ClientUserUpdateMessageProcessor` implement the actual behavior.
+- The factory `ClientMessageProcessorFactory` returns the right subclass based on the CommunicationType.
+
+#### Server Side
+
+   ```java
+   public void processMessage(String jsonMessage) {
+       Communication message = MessageSerializer.deserialize(jsonMessage);
+       ServerMessageProcessor processor = ServerMessageProcessorFactory.getProcessor(message.getType());
+       processor.processMessage(message, this.server, out, this);
+   }
+   ```
+
+- Similar to the client side, `ServerMessageProcessor` is abstract.
+- Concrete implementations like `ServerTextMessageProcessor`, `ServerSystemMessageProcessor`, and `ServerUserUpdateMessageProcessor` encapsulate logic for specific message types.
+- `ServerMessageProcessorFactory` hides the instantiation logic behind a clean interface.
+
+#### Benefits
+
+- **Open/Closed Principle***: Add new message types without modifying existing processing logic.
+- **Separation of Concerns**: Each processor class handles a single responsibility.
+- **Cleaner Code**: Avoids large conditional blocks in the message handlers.
+
+### MVC (Model-View-Controller)
+
+Please refere to [MVC Design Pattern](#mvc-design-attern) explained earlier.
+
 ## Getting Started
 
 ### Prerequisites
