@@ -346,13 +346,13 @@ Compile the application using Maven:
 
 Start the server application using the following command:
    ```bash
-   /Applications/IntelliJ\ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn exec:java -Dexec.mainClass="com.example.server.network.Server"
+   mvn exec:java -Dexec.mainClass="com.example.server.network.Server"
    ```
 6. Run the Client
 
 In a new terminal window or tab, execute the client application with the following command, passing localhost as an argument:
    ```bash
-   /Applications/IntelliJ\ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn exec:java -Dexec.mainClass="com.example.client.network.Client" -Dexec.args="localhost"
+   mvn exec:java -Dexec.mainClass="com.example.client.network.Client" -Dexec.args="localhost"
    ```
 ## Dependencies
 
