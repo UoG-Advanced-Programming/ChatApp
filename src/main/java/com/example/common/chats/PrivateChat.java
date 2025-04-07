@@ -10,52 +10,40 @@ public class PrivateChat extends Chat {
     private boolean active = true; // Indicates whether the chat is active
 
     /**
-     * Constructor for creating a new PrivateChat.
-     *
-     * @param chatName The name of the chat
-     */
-    public PrivateChat(String chatName) {
-        super(chatName); // Call the parent constructor with the chat name
-    }
-
-    /**
      * Checks if the chat is active.
      *
      * @return True if the chat is active, false otherwise
      */
-    public boolean isActive() {
-        return active;
-    }
+    public boolean isActive() { return active; }
 
     /**
      * Sets the active status of the chat.
      *
      * @param active The new active status of the chat
      */
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+    public void setActive(boolean active) { this.active = active; }
 
     /**
-     * Displays information about the private chat.
-     * Overrides the displayChatInfo method in the Chat class.
+     * Returns the display name of the private chat from the perspective of the specified user.
+     * This is typically the username of the other participant.
+     *
+     * @param currentUser The user for whom the other participant's name is displayed.
+     * @return The name of the other participant, or "Unknown" if not found.
      */
     @Override
-    public void displayChatInfo() {
-        System.out.print("Private Chat: " + getName() + " between "); // Print the chat name
-        for (User participant : getParticipants()) { // Iterate through the participants
-            System.out.print(participant.getUsername() + " "); // Print each participant's username
-        }
-        System.out.println(); // Print a new line at the end
+    public String getDisplayName(User currentUser) {
+        return getParticipants().stream()
+                .filter(user -> !user.equals(currentUser))
+                .findFirst()
+                .map(User::getUsername)
+                .orElse("Unknown");
     }
 
     /**
      * Gets the type of the chat.
      *
-     * @return The type of the chat, which is PRIVATE
+     * @return PRIVATE
      */
     @Override
-    public ChatType getType() {
-        return ChatType.PRIVATE; // Return the chat type as PRIVATE
-    }
+    public ChatType getType() { return ChatType.PRIVATE; }
 }

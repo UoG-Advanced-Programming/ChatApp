@@ -3,6 +3,7 @@ package com.example.client.network;
 import com.example.client.gui.Controller;
 import com.example.client.gui.Model;
 import com.example.client.gui.View;
+import com.example.client.gui.cellRenderers.ChatListCellRenderer;
 import com.example.client.processing.ClientMessageProcessor;
 import com.example.client.processing.ClientMessageProcessorFactory;
 import com.example.common.messages.Communication;
@@ -31,6 +32,7 @@ public class ClientHandler implements Runnable {
         this.in = in; // Initialize the BufferedReader
         Model model = new Model(user); // Create a new model with the user
         View view = new View(); // Create a new view
+        view.getChatList().setCellRenderer(new ChatListCellRenderer(user)); // Set custom cell renderer
         // Initialize controller
         controller = new Controller(model, view, client); // Create a new controller with the model, view, and client
     }

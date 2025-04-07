@@ -14,7 +14,6 @@ import java.util.Set;
  */
 public abstract class Chat {
     protected String id; // Unique identifier for the chat
-    protected String name; // Name of the chat
     protected LocalDateTime timestamp; // Timestamp when the chat was created
     protected final Set<User> participants; // Set of participants in the chat
 
@@ -23,12 +22,9 @@ public abstract class Chat {
     /**
      * Constructor for creating a new Chat.
      * Initializes the chat with the given name, generates a unique ID, and sets the timestamp.
-     *
-     * @param name The name of the chat
      */
-    public Chat(String name) {
+    public Chat() {
         this.id = IDGenerator.generateUUID(); // Generate a unique ID for the chat
-        this.name = name; // Set the chat name
         this.timestamp = LocalDateTime.now(); // Set the timestamp to the current time
         this.participants = new HashSet<>(); // Initialize the set of participants
     }
@@ -48,20 +44,6 @@ public abstract class Chat {
      * @param id The new unique identifier for the chat
      */
     public void setId(String id) { this.id = id; }
-
-    /**
-     * Gets the name of the chat.
-     *
-     * @return The name of the chat
-     */
-    public String getName() { return name; }
-
-    /**
-     * Sets the name of the chat.
-     *
-     * @param name The new name for the chat
-     */
-    public void setName(String name) { this.name = name; }
 
     /**
      * Gets the timestamp of when the chat was created.
@@ -85,10 +67,10 @@ public abstract class Chat {
      * @param participant The participant to add
      */
     public void addParticipant(User participant) {
-        if (participants.add(participant)) {
-            System.out.println("Participant " + participant.getUsername() + " added to chat: " + getName());
-        } else {
-            System.out.println("Participant " + participant.getUsername() + " is already in the chat: " + getName());
+        try {
+            participants.add(participant);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,10 +80,10 @@ public abstract class Chat {
      * @param participant The participant to remove
      */
     public void removeParticipant(User participant) {
-        if (participants.remove(participant)) {
-            System.out.println("Participant " + participant.getUsername() + " removed from chat: " + getName());
-        } else {
-            System.out.println("Participant " + participant.getUsername() + " is not in the chat: " + getName());
+        try {
+            participants.remove(participant);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -130,10 +112,13 @@ public abstract class Chat {
     // Abstract methods
 
     /**
-     * Displays information about the chat.
-     * This method must be implemented by subclasses.
+     * Retrieves the display name of the chat from the perspective of the specified user.
+     * For group chats, this is the group name. For private chats, it is the name of the other participant.
+     *
+     * @param currentUser The user for whom the display name should be resolved.
+     * @return The display name of the chat.
      */
-    public abstract void displayChatInfo();
+    public abstract String getDisplayName(User currentUser);
 
     /**
      * Gets the type of the chat.
@@ -142,14 +127,4 @@ public abstract class Chat {
      * @return The type of the chat
      */
     public abstract ChatType getType();
-
-    /**
-     * Checks if this private chat involves the same two users as another chat.
-     *
-     * @param other The other private chat to compare
-     * @return True if the chats involve the same two users, false otherwise
-     */
-    public boolean involvesSameUsers(PrivateChat other) {
-        return this.participants.equals(other.getParticipants());
-    }
 }

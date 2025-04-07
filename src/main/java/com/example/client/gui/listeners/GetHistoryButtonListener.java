@@ -32,22 +32,19 @@ public class GetHistoryButtonListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Chat currentChat = controller.getModel().getCurrentChat(); // Get the current chat
-        // Retrieve chat history
-        String chatHistory = controller.getModel().getFormattedChatHistory(currentChat);
+        String chatHistory = controller.getModel().getFormattedChatHistory(currentChat); // Retrieve chat history
 
         // Specify the file path
-        String fileName = currentChat.getName().replace(" ", "_") + ".txt";
+        String fileName = currentChat.getDisplayName(controller.getModel().getCurrentUser()).replace(" ", "_") + ".txt";
 
         try (FileWriter writer = new FileWriter(fileName)) {
-            // Write chat history to the file
             writer.write(chatHistory);
             writer.flush();
-
-            // Notify user of success
             controller.getView().showMessageDialog("Chat history saved to " + fileName, "History Saved");
         } catch (IOException ex) {
-            // Handle any file operation errors
             controller.getView().showErrorDialog("Error saving chat history: " + ex.getMessage(), "Error");
         }
     }
+
+
 }

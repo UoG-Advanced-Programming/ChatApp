@@ -48,7 +48,7 @@ public class PrivateChatButtonListener implements ActionListener {
             }
 
             // Create a new private chat
-            PrivateChat chat = new PrivateChat(selectedUser.getUsername());
+            PrivateChat chat = new PrivateChat();
             chat.addParticipant(selectedUser); // Add the selected user to the chat
             chat.addParticipant(controller.getModel().getCurrentUser()); // Add the current user to the chat
             controller.getModel().addChat(chat); // Add the chat to the model

@@ -2,7 +2,6 @@ package com.example.client.processing;
 
 import com.example.client.gui.Controller;
 import com.example.common.chats.Chat;
-import com.example.common.chats.PrivateChat;
 import com.example.common.messages.Communication;
 import com.example.common.messages.TextMessage;
 
@@ -29,11 +28,6 @@ public class ClientTextMessageProcessor extends ClientMessageProcessor {
         // Check if the chat is already present in the controller
         if (!controller.hasChat(chat)) {
             controller.addChat(chat); // Add the chat to the controller if not present
-
-            // If the chat is a private chat, set its name to the sender's username
-            if (chat instanceof PrivateChat privateChat) {
-                privateChat.setName(textMessage.getSender().getUsername());
-            }
         }
 
         controller.showMessage(textMessage); // Display the message in the GUI

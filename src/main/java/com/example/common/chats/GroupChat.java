@@ -7,27 +7,26 @@ import com.example.common.users.User;
  * with multiple participants.
  */
 public class GroupChat extends Chat {
+    protected String name; // Name of the chat
 
     /**
      * Constructor for creating a new GroupChat.
      *
-     * @param chatName The name of the chat
+     * @param name The name of the chat
      */
-    public GroupChat(String chatName) {
-        super(chatName); // Call the parent constructor with the chat name
+    public GroupChat(String name) {
+        this.name = name; // Call the parent constructor with the chat name
     }
 
     /**
-     * Displays information about the group chat.
-     * Overrides the displayChatInfo method in the Chat class.
+     * Returns the display name of the group chat, which is the name provided during creation.
+     *
+     * @param currentUser The user requesting the display name (not used here).
+     * @return The name of the group chat.
      */
     @Override
-    public void displayChatInfo() {
-        System.out.print("Group Chat: " + getName() + " with participants: "); // Print the chat name
-        for (User participant : getParticipants()) { // Iterate through the participants
-            System.out.print(participant.getUsername() + " "); // Print each participant's username
-        }
-        System.out.println(); // Print a new line at the end
+    public String getDisplayName(User currentUser) {
+        return name;
     }
 
     /**
@@ -36,7 +35,5 @@ public class GroupChat extends Chat {
      * @return The type of the chat, which is GROUP
      */
     @Override
-    public ChatType getType() {
-        return ChatType.GROUP; // Return the chat type as GROUP
-    }
+    public ChatType getType() { return ChatType.GROUP; }
 }

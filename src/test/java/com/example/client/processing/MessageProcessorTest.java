@@ -54,7 +54,7 @@ public class MessageProcessorTest {
         testGroupChat = new GroupChat("TestGroupChat"); // Create a group chat named "TestGroupChat"
 
         // Creating a private chat and adding participants explicitly
-        testPrivateChat = new PrivateChat("TestPrivateChat"); // Create a private chat named "TestPrivateChat"
+        testPrivateChat = new PrivateChat(); // Create a private chat
         testPrivateChat.addParticipant(testUser); // Add testUser to the private chat
         testPrivateChat.addParticipant(testUser2); // Add testUser2 to the private chat
     }
@@ -89,7 +89,7 @@ public class MessageProcessorTest {
         assertEquals(message, controller.getLastMessageShown(), "The message should be passed to showMessage"); // Verify the message was passed to showMessage
 
         // Verifying the private chat was renamed to the sender's username
-        assertEquals(testUser.getUsername(), testPrivateChat.getName(), "Private chat should be renamed to sender's username"); // Check if the private chat was renamed
+        assertEquals(testUser.getUsername(), testPrivateChat.getDisplayName(testUser2), "Private chat should be renamed to sender's username"); // Check if the private chat was renamed
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.example.client.gui;
 
 import com.example.client.gui.cellRenderers.ActiveUserCellRenderer;
-import com.example.client.gui.cellRenderers.ChatListCellRenderer;
 import com.example.client.gui.dialogs.GroupChatCreationDialog;
 import com.example.client.gui.dialogs.PrivateChatCreationDialog;
 import com.example.common.chats.Chat;
@@ -68,7 +67,6 @@ public class View {
         chatListModel = new DefaultListModel<>(); // Initialize chat list model
         chatList = new JList<>(chatListModel); // Create chat list component
         chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Set selection mode
-        chatList.setCellRenderer(new ChatListCellRenderer()); // Set custom cell renderer
         chatListPanel.add(new JScrollPane(chatList), BorderLayout.CENTER); // Add chat list to chat list panel
         frame.add(chatListPanel, BorderLayout.WEST); // Add chat list panel to the left of the frame
 

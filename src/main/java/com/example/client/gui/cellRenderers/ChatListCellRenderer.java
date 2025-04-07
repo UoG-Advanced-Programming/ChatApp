@@ -2,6 +2,7 @@ package com.example.client.gui.cellRenderers;
 
 import com.example.common.chats.GroupChat;
 import com.example.common.chats.PrivateChat;
+import com.example.common.users.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,11 +12,21 @@ import java.awt.*;
  * This renderer customizes the appearance of each chat item, including icons, colors, and styles.
  */
 public class ChatListCellRenderer extends DefaultListCellRenderer {
+    private final User currentUser; // Current User
     private static final int MAX_NAME_LENGTH = 15; // Maximum characters before truncating chat names
     private static final Color PRIVATE_CHAT_COLOR = new Color(100, 149, 237); // Cornflower Blue for private chats
     private static final Color GROUP_CHAT_COLOR = new Color(255, 140, 0); // Dark Orange for group chats
     private static final Color SELECTED_COLOR = new Color(144, 238, 144); // Light Green for selected chats
     private static final Color INACTIVE_COLOR = Color.GRAY; // Gray for inactive private chats
+
+    /**
+     * Constructs a chat list cell renderer with context of the current user.
+     *
+     * @param currentUser The user who is viewing the chat list.
+     */
+    public ChatListCellRenderer(User currentUser) {
+        this.currentUser = currentUser;
+    }
 
     /**
      * Overrides the default rendering method to customize how chat items appear.
@@ -40,10 +51,10 @@ public class ChatListCellRenderer extends DefaultListCellRenderer {
 
         // Determine chat type and set styling accordingly
         if (value instanceof PrivateChat privateChat) {
-            chatName = privateChat.getName();
+            chatName = privateChat.getDisplayName(currentUser);
             setForeground(privateChat.isActive() ? PRIVATE_CHAT_COLOR : INACTIVE_COLOR);
         } else if (value instanceof GroupChat groupChat) {
-            chatName = groupChat.getName();
+            chatName = groupChat.getDisplayName(currentUser);
             setForeground(GROUP_CHAT_COLOR);
         }
 
