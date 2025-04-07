@@ -414,7 +414,7 @@ Each message type (e.g., TEXT, USER_UPDATE, SYSTEM) requires a different handler
 
 ### MVC (Model-View-Controller)
 
-Please refere to [MVC Design Pattern](#mvc-design-attern) explained earlier.
+Please refere to [MVC Design Pattern](#mvc-design-pattern) explained earlier.
 
 ## Getting Started
 
