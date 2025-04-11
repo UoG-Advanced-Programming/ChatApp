@@ -5,6 +5,7 @@ A Java Swing-Based Chat Application developed as part of the Advanced Programmin
 ## Table of Contents
 
 - [Overview](#overview)
+- [Demo](#demo)
 - [System Workflow](#system-workflow)
   - [User Interactions](#user-interactions)
   - [GUI Components](#gui-components)
@@ -29,6 +30,10 @@ A Java Swing-Based Chat Application developed as part of the Advanced Programmin
 ## Overview
 
 ChatApp is a desktop chat application built using Java Swing that allows users to communicate in real-time. The application provides a user-friendly interface for text-based conversations with features commonly found in modern chat applications.
+
+## Demo
+
+[![Link to the YouTube Video](https://img.youtube.com/vi/z25cKjfklSA/0.jpg)](https://youtu.be/z25cKjfklSA)
 
 ## System Workflow
 
