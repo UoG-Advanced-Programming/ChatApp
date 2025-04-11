@@ -478,19 +478,14 @@ Use Maven to build the application and install its dependencies:
    ```bash
    mvn clean install
    ```
-4. Compile the Application with Maven
 
-Compile the application using Maven:
-   ```bash
-   mvn compile
-   ```
-5. Run the Server
+4. Run the Server
 
 Start the server application using the following command:
    ```bash
    mvn exec:java -Dexec.mainClass="com.example.server.network.Server"
    ```
-6. Run the Client
+5. Run the Client
 
 In a new terminal window or tab, execute the client application with the following command, passing localhost as an argument:
    ```bash
